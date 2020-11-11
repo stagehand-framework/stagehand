@@ -66,10 +66,10 @@ Resources:
         HttpVersion: http2
         Origins:
           # TODO: Need to not hardcode the region
-          - DomainName: !Sub "${S3Bucket}.s3-website.us-east-1.amazonaws.com"
+          - DomainName: !Sub "${S3Bucket}.s3-website-us-east-1.amazonaws.com"
             Id: s3origin
             CustomOriginConfig:
-              OriginProtocolPolicy: match-viewer
+              OriginProtocolPolicy: http-only
         PriceClass: "PriceClass_All"
 Outputs:
   BucketName:
