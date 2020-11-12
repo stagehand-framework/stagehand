@@ -7,14 +7,25 @@ jobs:
   create_or_update_pr_env:
     runs-on: ubuntu-latest
     env:
-      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_CF_DOMAIN: ${{ secrets.AWS_CF_DOMAIN }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET || 'us-east-1' }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       BRANCH_NAME: ${{ github.head_ref }}
       SOURCE_DIR: "public"
       DEST_DIR: ${{ github.head_ref }}/${{ github.sha }}
+      
     steps:
+      - name: Missing AWS Credentials
+        if: ${{ !env.AWS_SECRET_ACCESS_KEY || !env.AWS_ACCESS_KEY_ID }}
+        run: exit 1
+      - name: Missing S3 Bucket name
+        if: ${{ !env.AWS_S3_BUCKET }}
+        run: exit 1
+      - name: Invalid CloudFront Domain
+        if: ${{ !contains(env.AWS_CF_DOMAIN, 'cloudfront.net') }}
+        run: exit 1
       - name: Checkout
         uses: actions/checkout@v1
       - name: Setup Hugo
@@ -35,5 +46,5 @@ jobs:
       - uses: actions/checkout@v2
       - uses: mb2dev/github-action-comment-pull-request@1.0.0
         with:
-          message: Check out the preview here https://${{ secrets.AWS_CF_DOMAIN }}/${{ github.head_ref }}/${{ github.sha }}
+          message: Check out the preview here https://${{ env.AWS_CF_DOMAIN }}/${{ github.head_ref }}/${{ github.sha }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

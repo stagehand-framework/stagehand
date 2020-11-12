@@ -7,14 +7,25 @@ jobs:
   create_or_update_pr_env:
     runs-on: ubuntu-latest
     env:
-      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}  
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      AWS_CF_DOMAIN: '${{ secrets.AWS_CF_DOMAIN }}'
       BRANCH_NAME: ${{ github.head_ref }}
       SOURCE_DIR: "out"
       DEST_DIR: ${{ github.head_ref }}/${{ github.sha }}
+
     steps:
+      - name: Missing AWS Credentials
+        if: ${{ !env.AWS_SECRET_ACCESS_KEY || !env.AWS_ACCESS_KEY_ID }}
+        run: exit 1
+      - name: Missing S3 Bucket name
+        if: ${{ !env.AWS_S3_BUCKET }}
+        run: exit 1
+      - name: Invalid CloudFront Domain
+        if: ${{ !contains(env.AWS_CF_DOMAIN, 'cloudfront.net') }}
+        run: exit 1
       - name: Checkout
         uses: actions/checkout@v1
       - name: Setup Next
@@ -39,4 +50,4 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { issue: { number: issue_number }, repo: { owner, repo }  } = context;
-            github.issues.createComment({ issue_number, owner, repo, body: 'Check out the preview here https://${{ secrets.AWS_CF_DOMAIN }}/${{ github.head_ref }}/${{ github.sha }}' });
+            github.issues.createComment({ issue_number, owner, repo, body: 'Check out the preview here https://${{ env.AWS_CF_DOMAIN }}/${{ github.head_ref }}/${{ github.sha }}' });
