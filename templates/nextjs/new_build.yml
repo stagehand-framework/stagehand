@@ -1,0 +1,42 @@
+on:
+  pull_request:
+    types: [reopened, opened, synchronize, edited]
+
+    name: Create PR Env
+jobs:
+  create_or_update_pr_env:
+    runs-on: ubuntu-latest
+    env:
+      AWS_S3_BUCKET: adjustemil-s3bucket-1186v5c7e24ro
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: "us-east-1"
+      BRANCH_NAME: ${{ github.head_ref }}
+      SOURCE_DIR: "out"
+      DEST_DIR: ${{ github.head_ref }}/${{ github.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Setup Next
+        run: npm install
+      - name: Clean out directory
+        run: rm -rf out
+      - name: Change basePath
+        run: sed -i 's/\( *basePath:\).*/\1 "\/${{ github.head_ref }}\/${{ github.sha }}",/' next.config.js
+      - name: Build Site
+        run: npm run-script build
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Sync to S3 Bucket
+        run: aws s3 sync ./${{ env.SOURCE_DIR }} s3://${{ env.AWS_S3_BUCKET }}/${{ env.DEST_DIR }}
+      - name: "Comment PR"
+        uses: actions/github-script@v3
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { issue: { number: issue_number }, repo: { owner, repo }  } = context;
+            github.issues.createComment({ issue_number, owner, repo, body: 'Check out the preview here https://d3ehasrbauudr.cloudfront.net/${{ github.head_ref }}/${{ github.sha }}' });
