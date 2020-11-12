@@ -9,12 +9,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: vitorsgomes/s3-rm-action@master
+      - uses: aws-actions/configure-aws-credentials@v1
         with:
-          args: --recursive
-        env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          PATH_TO_DELETE: ${{ github.head_ref }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Remove Review Apps from S3
+        run: aws s3 rm s3://${{ env.AWS_S3_BUCKET }}/${{ github.head_ref }} --recursive
+      - name: Invalidate Cloudfront
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths /${{ github.head_ref }}/*
