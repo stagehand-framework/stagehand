@@ -1,7 +1,10 @@
+const { init } = require('./init');
+const { stagehandErr, stagehandLog } = require('../util/logger')
+
 module.exports = async function executeCommand(command, args) {
   if (command === 'init') {
-    console.log('initializing');
+    stagehandLog('initializing');
   } else {
-    console.log(`Command: ${command} is not valid.`);
+    stagehandErr(`Command: ${command} is not valid.`);
   }
 };
