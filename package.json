@@ -1,0 +1,37 @@
+{
+  "name": "stagehand",
+  "version": "1.0.0",
+  "description": "#TODO",
+  "homepage": "https://github.com/stagehand-framework/stagehand#readme",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stagehand-framework/stagehand.git"
+  },
+  "author": "Stagehand Framework",
+  "contributors": [
+    {
+      "name": "Daniel Lew",
+      "email": "danielshlomolew@gmail.com"
+    },
+    {
+      "name": "Cody Stair",
+      "email": "ccstair27@gmail.com"
+    },
+    {
+      "name": "Emil Reji",
+      "email": "emil315.reji@gmail.com"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stagehand-framework/stagehand/issues"
+  },
+  "bin": {
+    "stagehand": "./bin/cli.js"
+  },
+  "preferGlobal": true
+}
