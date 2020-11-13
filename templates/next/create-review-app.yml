@@ -1,4 +1,4 @@
-name: Build Review App Nextjs
+name: Create Review App Nextjs
 on:
   pull_request:
     types: [reopened, opened, synchronize, edited]
