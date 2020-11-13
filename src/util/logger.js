@@ -1,7 +1,7 @@
-const escape = '\x1b';
-const reset = '\x1b[0m';
-const red = '[31m';
-const yellow = '[33m';
+const escape = "\x1b";
+const reset = "\x1b[0m";
+const red = "[31m";
+const yellow = "[33m";
 
 const stagehandErr = (text) => {
   console.log(`Error ${escape}${red}`, text, reset);

@@ -46,7 +46,7 @@ const init = async (directory, args) => {
     });
   } catch (err) {
     stagehandErr(`Error: ${err}`);
-  }
+  } catch (err) {}
 };
 
 module.exports = { init };
