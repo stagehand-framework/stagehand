@@ -12,13 +12,13 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-      DISTRIBUTION_ID: ${{ secrets.DISTRIBUTION_ID }}
+      AWS_CF_DIST_ID: ${{ secrets.AWS_CF_DIST_ID }}
     steps:
       - name: Missing AWS Credentials
         if: ${{ !env.AWS_SECRET_ACCESS_KEY && !env.AWS_ACCESS_KEY_ID }}
         run: exit 1
       - name: Missing CloudFront Distribution ID
-        if: ${{ !env.DISTRIBUTION_ID }}
+        if: ${{ !env.AWS_CF_DIST_ID }}
         run: exit 1
       - name: Missing S3 Bucket name
         if: ${{ !env.AWS_S3_BUCKET }}
@@ -31,4 +31,4 @@ jobs:
       - name: Remove Review Apps from S3
         run: aws s3 rm s3://${{ env.AWS_S3_BUCKET }}/${{ github.head_ref }} --recursive
       - name: Invalidate Cloudfront
-        run: aws cloudfront create-invalidation --distribution-id ${{ env.DISTRIBUTION_ID }} --paths /${{ github.head_ref }}/*
+        run: aws cloudfront create-invalidation --distribution-id ${{ env.AWS_CF_DIST_ID }} --paths /${{ github.head_ref }}/*

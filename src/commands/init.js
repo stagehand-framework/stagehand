@@ -1,29 +1,33 @@
 const { exec } = require('child_process');
-const { stagehandErr, stagehandLog } = require('../util/logger')
+const { stagehandErr, stagehandLog } = require('../util/logger');
+const parseStackOutputs = require('../util/parseStackOutputs');
 
-const stackName = 'init-stack2';
-const templatePath = './templates/nextjs/cloudformation_template_nextjs.yaml';
+// const stackName = 'stagehand-init-stack2'; This will be gotten from args[1]
 
-const createStackCmd = `aws cloudformation deploy --template-file ${templatePath} --stack-name ${stackName} --capabilities CAPABILITY_IAM`;
-const getStackOutputs = `aws cloudformation describe-stacks --stack-name ${stackName}`;
+const getTemplatePath = (ssg) => `./templates/${ssg}/cloudformation_template.yml`;
 
-const logCmd = (error, stdout, stderr) => {
-  if (error) {
-    stagehandErr(`error: ${error.message}`);
-    return;
-  }
-  
-  if (stderr) {
-    stagehandErr(`stderr: ${stderr}`);
-    return;
-  }
-  
-  stagehandLog(`stdout: ${stdout}`);
+const createStackCmd = (templatePath, stackName) => {
+  return `aws cloudformation deploy --template-file ${templatePath} --stack-name ${stackName} --capabilities CAPABILITY_IAM`;
 }
+const getStackOutputs = (stackName) => `aws cloudformation describe-stacks --stack-name ${stackName}`;
 
-const createStagehand = () => {
+// const logCmd = (error, stdout, stderr) => {
+//   if (error) {
+//     stagehandErr(`error: ${error.message}`);
+//     return;
+//   }
+  
+//   if (stderr) {
+//     stagehandErr(`stderr: ${stderr}`);
+//     return;
+//   }
+  
+//   stagehandLog(`stdout: ${stdout}`);
+// }
+
+const createStagehand = (ssg, stackName) => {
   return new Promise((resolve, reject) => {
-    exec(createStackCmd, (error, stdout, stderr) => {
+    exec(createStackCmd(getTemplatePath(ssg), stackName), (error, stdout, stderr) => {
       if (error) {
         stagehandErr(`error: ${error.message}`);
         return;
@@ -39,14 +43,27 @@ const createStagehand = () => {
   })
 }
 
-const init = async (directory, args) => {
+const init = async (args) => {
   try {
-    createStagehand().then(resolve => {
-      exec(getStackOutputs, logCmd);
+    createStagehand(args[0], args[1]).then(resolve => {
+      exec(getStackOutputs(), (error, stdout, stderr) => {
+        if (error) {
+          stagehandErr(`error: ${error.message}`);
+          return;
+        }
+        
+        if (stderr) {
+          stagehandErr(`stderr: ${stderr}`);
+          return;
+        }
+        
+        const outputs = parseStackOutputs(stdout);
+        stagehandLog(outputs);
+      });
     });
   } catch (err) {
     stagehandErr(`Error: ${err}`);
-  } catch (err) {}
+  }
 };
 
 module.exports = { init };
