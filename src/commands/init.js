@@ -6,6 +6,8 @@ const parseStackOutputs = require('../util/parseStackOutputs');
 
 // const stackName = 'stagehand-init-stack2'; This will be gotten from args[1]
 
+const rootFrameworkPath = path.join(__dirname, '/../..');
+
 const getTemplatePath = (ssg, fileType) => {
   if (fileType === 'cfStack') {
     fileType = 'cloudformation_template';
@@ -15,7 +17,7 @@ const getTemplatePath = (ssg, fileType) => {
     fileType = 'remove_review_app';
   }
 
-  return `./templates/${ssg}/${fileType}.yml`;
+  return path.join(rootFrameworkPath, `/templates/${ssg}/${fileType}.yml`);
 }
 
 const createStackCmd = (templatePath, stackName) => {
@@ -70,11 +72,11 @@ const createWorkflowDir = () => {
 }
 
 const copyGithubActions = (ssg) => {
-  fs.copyFile(`./templates/${ssg}/create_review_app.yml`, path.join(process.cwd(), '/.github/workflows/create_review_app.yml'), (err) => {
+  fs.copyFile(path.join(rootFrameworkPath, `/templates/${ssg}/create_review_app.yml`), path.join(process.cwd(), '/.github/workflows/create_review_app.yml'), (err) => {
     if (err) throw err;
     console.log('copy completed');
   });
-  fs.copyFile(`./templates/${ssg}/remove_review_app.yml`, path.join(process.cwd(), '/.github/workflows/remove_review_app.yml'), (err) => {
+  fs.copyFile(path.join(rootFrameworkPath, `/templates/${ssg}/remove_review_app.yml`), path.join(process.cwd(), '/.github/workflows/remove_review_app.yml'), (err) => {
     if (err) throw err;
     console.log('copy completed');
   });
