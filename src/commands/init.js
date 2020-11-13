@@ -24,7 +24,7 @@ const createStackCmd = (templatePath, stackName) => {
   return `aws cloudformation deploy --template-file ${templatePath} --stack-name ${stackName} --capabilities CAPABILITY_IAM`;
 };
 const getStackOutputs = (stackName) =>
-  `aws cloudformation describe-stacks --stack-name ${stackName}`;
+  `aws cloudformation describe-stacks --stack-name ${stackName} --output text`;
 
 // const logCmd = (error, stdout, stderr) => {
 //   if (error) {
