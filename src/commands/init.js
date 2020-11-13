@@ -46,7 +46,7 @@ const createStagehand = (ssg, stackName) => {
 const init = async (args) => {
   try {
     createStagehand(args[0], args[1]).then(resolve => {
-      exec(getStackOutputs(), (error, stdout, stderr) => {
+      exec(getStackOutputs(args[1]), (error, stdout, stderr) => {
         if (error) {
           stagehandErr(`error: ${error.message}`);
           return;
