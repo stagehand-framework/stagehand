@@ -1,5 +1,9 @@
 const fs = require('fs');
 const { exec } = require('child_process');
+
+const { getStackOutputs } = require('../aws/getStackOutputs');
+const { createStack } = require('../aws/createStack');
+
 const { stagehandErr, stagehandLog } = require('../util/logger');
 const {
   rootFrameworkPath,
@@ -16,12 +20,6 @@ const {
 const { createStackOutputMessage, parseStackOutputJSON } = require('../util/parseStackOutputs');
 
 // const stackName = 'stagehand-init-stack2'; This will be gotten from args[1]
-
-const createStackCmd = (templatePath, stackName) => {
-  return `aws cloudformation deploy --template-file ${templatePath} --stack-name ${stackName} --capabilities CAPABILITY_IAM`;
-};
-const getStackOutputs = (stackName) =>
-  `aws cloudformation describe-stacks --stack-name ${stackName} --output json`;
 
 // const logCmd = (error, stdout, stderr) => {
 //   if (error) {
@@ -41,7 +39,7 @@ const createStagehand = (ssg, stackName) => {
   return new Promise((resolve, reject) => {
     const templatePath = getTemplatePath(ssg, 'cfStack');
 
-    exec(createStackCmd(templatePath, stackName), (error, stdout, stderr) => {
+    exec(createStack(templatePath, stackName), (error, stdout, stderr) => {
       if (error) {
         stagehandErr(`error: ${error.message}`);
         return;
