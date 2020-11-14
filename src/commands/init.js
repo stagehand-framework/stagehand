@@ -1,24 +1,21 @@
 const fs = require('fs');
-const path = require('path');
 const { exec } = require('child_process');
 const { stagehandErr, stagehandLog } = require('../util/logger');
+const {
+  rootFrameworkPath,
+  githubFolderPath,
+  workflowFolderPath,
+  userCreateReviewAppPath,
+  userRemoveReviewAppPath,
+  dataPath,
+  dataFolderPath,
+  frameworkRemoveReviewAppPath,
+  frameworkCreateReviewAppPath,
+  getTemplatePath,
+} = require('../util/paths');
 const { createStackOutputMessage, parseStackOutputJSON } = require('../util/parseStackOutputs');
 
 // const stackName = 'stagehand-init-stack2'; This will be gotten from args[1]
-
-const rootFrameworkPath = path.join(__dirname, '/../..');
-
-const getTemplatePath = (ssg, fileType) => {
-  if (fileType === 'cfStack') {
-    fileType = 'cloudformation_template';
-  } else if (fileType === 'create') {
-    fileType = 'create_review_app';
-  } else if (fileType === 'remove') {
-    fileType = 'remove_review_app';
-  }
-
-  return path.join(rootFrameworkPath, `/templates/${ssg}/${fileType}.yml`);
-}
 
 const createStackCmd = (templatePath, stackName) => {
   return `aws cloudformation deploy --template-file ${templatePath} --stack-name ${stackName} --capabilities CAPABILITY_IAM`;
@@ -61,30 +58,38 @@ const createStagehand = (ssg, stackName) => {
 }
 
 const createWorkflowDir = () => {
-  const githubPath = path.join(process.cwd(), '/.github')
-  if (!fs.existsSync(githubPath)){
-    fs.mkdirSync(githubPath);
+  if (!fs.existsSync(githubFolderPath)){
+    fs.mkdirSync(githubFolderPath);
   }
 
-  const workflowPath = path.join(process.cwd(), '/.github/workflows')
-  if (!fs.existsSync(workflowPath)) {
-    fs.mkdirSync(workflowPath);
+  if (!fs.existsSync(workflowFolderPath)) {
+    fs.mkdirSync(workflowFolderPath);
+  }
+}
+
+const createDataFile = () => {
+  if (!fs.existsSync(dataFolderPath)){
+    fs.mkdirSync(dataFolderPath);
+  }
+
+  if (!fs.existsSync(dataPath)) {
+    fs.writeFileSync(dataPath, JSON.stringify({}));
+    stagehandLog('Data File created');
   }
 }
 
 const copyGithubActions = (ssg) => {
-  fs.copyFile(path.join(rootFrameworkPath, `/templates/${ssg}/create_review_app.yml`), path.join(process.cwd(), '/.github/workflows/create_review_app.yml'), (err) => {
+  fs.copyFile(frameworkCreateReviewAppPath(ssg), userCreateReviewAppPath, (err) => {
     if (err) throw err;
-    console.log('copy completed');
+    stagehandLog('Create review app action created');
   });
-  fs.copyFile(path.join(rootFrameworkPath, `/templates/${ssg}/remove_review_app.yml`), path.join(process.cwd(), '/.github/workflows/remove_review_app.yml'), (err) => {
+  fs.copyFile(frameworkRemoveReviewAppPath(ssg), userRemoveReviewAppPath, (err) => {
     if (err) throw err;
-    console.log('copy completed');
+    stagehandLog('Remove review app action created');
   });
 }
 
 const addNewStagehandApp = (info) => {
-  const dataPath = path.join(rootFrameworkPath, '/data/userApps.json');
   const rawUserAppsData = fs.readFileSync(dataPath);
   const userApps = JSON.parse(rawUserAppsData);
 
@@ -97,6 +102,7 @@ const init = async (args) => {
   try {
     createWorkflowDir();
     copyGithubActions(args["ssg"]);
+    createDataFile();
     createStagehand(args["ssg"], args["stackName"]).then(resolve => {
       exec(getStackOutputs(args["stackName"]), (error, stdout, stderr) => {
         if (error) {

@@ -1,5 +1,5 @@
 const { stagehandErr, stagehandLog } = require('../util/logger');
-const { dataPath } = require('../util/path');
+const { dataPath } = require('../util/paths');
 
 module.exports = async function list(args) {
   const rawUserAppsData = fs.readFileSync(dataPath);

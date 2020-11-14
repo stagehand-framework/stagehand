@@ -6,6 +6,8 @@ const workflowFolderPath = path.join(process.cwd(), '/.github/workflows');
 
 const userCreateReviewAppPath = path.join(process.cwd(), '/.github/workflows/create_review_app.yml');
 const userRemoveReviewAppPath = path.join(process.cwd(), '/.github/workflows/remove_review_app.yml');
+
+const dataFolderPath = path.join(rootFrameworkPath, '/data');
 const dataPath = path.join(rootFrameworkPath, '/data/userApps.json');
 
 const frameworkCreateReviewAppPath = (ssg) => path.join(rootFrameworkPath, `/templates/${ssg}/create_review_app.yml`);
@@ -31,6 +33,7 @@ module.exports = {
   userCreateReviewAppPath,
   userRemoveReviewAppPath,
   dataPath,
+  dataFolderPath,
   frameworkRemoveReviewAppPath,
   frameworkCreateReviewAppPath,
   getTemplatePath,
