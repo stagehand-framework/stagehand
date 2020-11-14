@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
 const { stagehandErr, stagehandLog } = require('../util/logger');
-const parseStackOutputs = require('../util/parseStackOutputs');
+const { createStackOutputMessage, parseStackOutputJSON } = require('../util/parseStackOutputs');
 
 // const stackName = 'stagehand-init-stack2'; This will be gotten from args[1]
 
@@ -24,7 +24,7 @@ const createStackCmd = (templatePath, stackName) => {
   return `aws cloudformation deploy --template-file ${templatePath} --stack-name ${stackName} --capabilities CAPABILITY_IAM`;
 };
 const getStackOutputs = (stackName) =>
-  `aws cloudformation describe-stacks --stack-name ${stackName} --output text`;
+  `aws cloudformation describe-stacks --stack-name ${stackName} --output json`;
 
 // const logCmd = (error, stdout, stderr) => {
 //   if (error) {
@@ -59,6 +59,7 @@ const createStagehand = (ssg, stackName) => {
     });
   })
 }
+
 const createWorkflowDir = () => {
   const githubPath = path.join(process.cwd(), '/.github')
   if (!fs.existsSync(githubPath)){
@@ -82,6 +83,16 @@ const copyGithubActions = (ssg) => {
   });
 }
 
+const addNewStagehandApp = (info) => {
+  const dataPath = path.join(rootFrameworkPath, '/data/userApps.json');
+  const rawUserAppsData = fs.readFileSync(dataPath);
+  const userApps = JSON.parse(rawUserAppsData);
+
+  userApps[info['stackName']] = info['bucketName'];
+
+  fs.writeFileSync(dataPath, JSON.stringify(userApps));
+}
+
 const init = async (args) => {
   try {
     createWorkflowDir();
@@ -98,8 +109,15 @@ const init = async (args) => {
           return;
         }
 
-        const outputs = parseStackOutputs(stdout);
-        stagehandLog(outputs);
+        const stackOutputJSON = parseStackOutputJSON(stdout);
+        const outputMessage = createStackOutputMessage(stackOutputJSON);
+
+        addNewStagehandApp({ 
+          bucketName: stackOutputJSON['BucketName'],
+          stackName: args["stackName"]
+        });
+
+        stagehandLog(outputMessage);
       });
     });
   } catch (err) {
