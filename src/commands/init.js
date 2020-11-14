@@ -4,36 +4,17 @@ const { exec } = require('child_process');
 const { getStackOutputs } = require('../aws/getStackOutputs');
 const { createStack } = require('../aws/createStack');
 
-const { stagehandErr, stagehandLog } = require('../util/logger');
 const {
-  rootFrameworkPath,
-  githubFolderPath,
-  workflowFolderPath,
-  userCreateReviewAppPath,
-  userRemoveReviewAppPath,
-  dataPath,
-  dataFolderPath,
-  frameworkRemoveReviewAppPath,
-  frameworkCreateReviewAppPath,
-  getTemplatePath,
-} = require('../util/paths');
+  createWorkflowDir,
+  copyGithubActions,
+  createDataFile,
+  readDataFile,
+  writeToDataFile,
+} = require('../util/fs');
+
+const { stagehandErr, stagehandLog } = require('../util/logger');
+const { getTemplatePath } = require('../util/paths');
 const { createStackOutputMessage, parseStackOutputJSON } = require('../util/parseStackOutputs');
-
-// const stackName = 'stagehand-init-stack2'; This will be gotten from args[1]
-
-// const logCmd = (error, stdout, stderr) => {
-//   if (error) {
-//     stagehandErr(`error: ${error.message}`);
-//     return;
-//   }
-
-//   if (stderr) {
-//     stagehandErr(`stderr: ${stderr}`);
-//     return;
-//   }
-
-//   stagehandLog(`stdout: ${stdout}`);
-// }
 
 const createStagehand = (ssg, stackName) => {
   return new Promise((resolve, reject) => {
@@ -55,45 +36,12 @@ const createStagehand = (ssg, stackName) => {
   })
 }
 
-const createWorkflowDir = () => {
-  if (!fs.existsSync(githubFolderPath)){
-    fs.mkdirSync(githubFolderPath);
-  }
-
-  if (!fs.existsSync(workflowFolderPath)) {
-    fs.mkdirSync(workflowFolderPath);
-  }
-}
-
-const createDataFile = () => {
-  if (!fs.existsSync(dataFolderPath)){
-    fs.mkdirSync(dataFolderPath);
-  }
-
-  if (!fs.existsSync(dataPath)) {
-    fs.writeFileSync(dataPath, JSON.stringify({}));
-    stagehandLog('Data File created');
-  }
-}
-
-const copyGithubActions = (ssg) => {
-  fs.copyFile(frameworkCreateReviewAppPath(ssg), userCreateReviewAppPath, (err) => {
-    if (err) throw err;
-    stagehandLog('Create review app action created');
-  });
-  fs.copyFile(frameworkRemoveReviewAppPath(ssg), userRemoveReviewAppPath, (err) => {
-    if (err) throw err;
-    stagehandLog('Remove review app action created');
-  });
-}
-
 const addNewStagehandApp = (info) => {
-  const rawUserAppsData = fs.readFileSync(dataPath);
-  const userApps = JSON.parse(rawUserAppsData);
+  const userApps = readDataFile();
 
   userApps[info['stackName']] = info['bucketName'];
 
-  fs.writeFileSync(dataPath, JSON.stringify(userApps));
+  writeToDataFile(userApps);
 }
 
 const init = async (args) => {
@@ -101,6 +49,7 @@ const init = async (args) => {
     createWorkflowDir();
     copyGithubActions(args["ssg"]);
     createDataFile();
+
     createStagehand(args["ssg"], args["stackName"]).then(resolve => {
       exec(getStackOutputs(args["stackName"]), (error, stdout, stderr) => {
         if (error) {
