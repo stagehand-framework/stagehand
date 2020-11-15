@@ -32,6 +32,14 @@ jobs:
         run: npm ci
       - name: Clean out directory
         run: rm -rf public
+####### Uncomment below to add env variables to use during build process #######
+####### Add \n\ to the end of each secret to start a new line #######
+####### DO NOT add \n\ to the end of the last secret #######
+####### You must add GATSBY_ACTIVE_ENV=staging to the build command #######
+      # - name: create .env.staging
+      #   run: echo -e "\
+      #     SECRET1=${{ secrets.YOUR_SECRET1 }}\n\
+      #     SECRET2=${{ secrets.YOUR_SECRET2 }}" > .env.staging
       - name: Build
         run: PATH_PREFIX=${{ github.head_ref }}/${{ github.sha }} npm run build -- --prefix-paths
       - uses: aws-actions/configure-aws-credentials@v1
