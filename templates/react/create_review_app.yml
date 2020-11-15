@@ -1,0 +1,51 @@
+on:
+  pull_request:
+    types: [reopened, opened, synchronize, edited]
+    name: Create PR Env
+jobs:
+  create_or_update_pr_env:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET || 'us-east-1' }}
+      AWS_CF_DOMAIN: ${{ secrets.AWS_CF_DOMAIN }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      BRANCH_NAME: ${{ github.head_ref }}
+      SOURCE_DIR: "build"
+      DEST_DIR: ${{ github.head_ref }}/${{ github.sha }}
+    steps:
+      - name: Missing AWS Credentials
+        if: ${{ !env.AWS_SECRET_ACCESS_KEY || !env.AWS_ACCESS_KEY_ID }}
+        run: exit 1
+      - name: Missing S3 Bucket name
+        if: ${{ !env.AWS_S3_BUCKET }}
+        run: exit 1
+      - name: Invalid CloudFront Domain
+        if: ${{ !contains(env.AWS_CF_DOMAIN, 'cloudfront.net') }}
+        run: exit 1
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Setup React
+        run: npm install
+      - name: Set Hompage
+        run: |
+          sed -i -e '/^{$/a\' -e '"homepage": "placeholder",' package.json
+          sed -i 's/\( *"homepage":\).*/\1 "http:\/\/${{ secrets.AWS_CF_DOMAIN }}\/${{ github.head_ref }}\/${{ github.sha }}",/' package.json
+      - name: Build
+        run: npm run build
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Sync to S3 Bucket
+        run: aws s3 sync ./${{ env.SOURCE_DIR }} s3://${{ env.AWS_S3_BUCKET }}/${{ env.DEST_DIR }}
+      - name: "Comment PR"
+        uses: actions/github-script@v3
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { issue: { number: issue_number }, repo: { owner, repo }  } = context;
+            github.issues.createComment({ issue_number, owner, repo, body: 'Check out the preview here https://${{ secrets.AWS_CF_DOMAIN }}/${{ github.head_ref }}/${{ github.sha }}' });

@@ -1,5 +1,5 @@
 const { stagehandErr, stagehandLog } = require("../util/logger");
-const ssgs = ["gatsby", "next", "hugo"];
+const ssgs = ["gatsby", "next", "hugo", "react"];
 const keys = ["ssg", "stackName"];
 
 const getRandomIntInclusive = (min, max) => {
