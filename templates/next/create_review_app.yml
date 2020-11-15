@@ -34,9 +34,9 @@ jobs:
         run: rm -rf out
       - name: Change basePath
         run: sed -i 's/\( *basePath:\).*/\1 "\/${{ github.head_ref }}\/${{ github.sha }}",/' next.config.js
-      # Uncomment and add env variables to use during build process
-      # Add \n\ to the end of each secret to start a new line
-      # EXCEPT DO NOT add to the end of the last secret
+####### Uncomment below to add env variables to use during build process #######
+####### Add \n\ to the end of each secret to start a new line #######
+####### EXCEPT DO NOT add to the end of the last secret #######
       # - name: create .env.local
       #   run: echo -e "\
       #     SECRET1=${{ secrets.YOUR_SECRET1 }}\n\
