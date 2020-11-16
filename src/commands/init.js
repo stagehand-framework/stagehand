@@ -15,11 +15,12 @@ const {
 
 const { stagehandErr, stagehandLog } = require("../util/logger");
 const { getTemplatePath } = require("../util/paths");
-const { ssgs } = require("../util/handleArgs");
 const {
   createStackOutputMessage,
   parseStackOutputJSON,
 } = require("../util/parseStackOutputs");
+
+const ssgs = ["gatsby", "next", "hugo", "react"];
 
 const createStagehand = (ssg, stackName) => {
   return new Promise((resolve, reject) => {

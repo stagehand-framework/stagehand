@@ -1,6 +1,5 @@
 const { stagehandErr, stagehandLog } = require("../util/logger");
-const ssgs = ["gatsby", "next", "hugo", "react"];
-const keys = ["ssg", "stackName"];
+const keys = ["ssg", "stackName"]; // move to individual command files or one large commands file
 
 function handleArgs(args) {
   const filteredArgs = {};
@@ -13,16 +12,10 @@ function handleArgs(args) {
 
   args.map((arg) => {
     const [key, val] = arg.split(" ");
-    if (!keys.includes(key)) {
-      throw new Error(
-        `The argument of ${key} is invalid. Please use one of the following: ${keys}.`
-      );
-    }
-
     filteredArgs[key] = val;
   });
 
   return filteredArgs;
 }
 
-module.exports = { handleArgs, ssgs };
+module.exports = { handleArgs };
