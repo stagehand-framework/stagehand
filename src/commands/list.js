@@ -1,10 +1,10 @@
 const { stagehandErr, stagehandLog } = require('../util/logger');
-const { dataPath } = require('../util/paths');
+const { readDataFile } = require('../util/fs');
+const { getS3Branches, getAppsForBranch } = require('../aws/getBucketObjects');
 
 module.exports = async function list(args) {
-  const rawUserAppsData = fs.readFileSync(dataPath);
-  const userApps = JSON.parse(rawUserAppsData);
-  const appName = args; // TODO: fix handleArgs so we can grab appName from it
+  const userApps = readDataFile();
+  const appName = 'testesttest';
 
   if (args.length === 0) {
     const stackNames = Object.keys(userApps);
@@ -18,8 +18,10 @@ module.exports = async function list(args) {
       ---------------------------
     `);
 
-  } else if (userApps[appName]) {
-    // TODO: Grab info about stack
+  } else if (appName) {
+    const branches = getS3Branches(appName)
+    console.log(branches);
+    console.log(typeof branches);
   } else {
     stagehandLog(`No stagehand with name ${appName} found`)
   }
