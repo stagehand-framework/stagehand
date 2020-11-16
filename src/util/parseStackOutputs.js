@@ -15,6 +15,9 @@ const createStackOutputMessage = (outputs) => {
   return `Put these values into your Github Repository Secrets:
     ----------------------------
     AWS_S3_BUCKET: ${outputs['BucketName']}
+    AWS_ACCESS_KEY_ID: ${outputs['AccessKeyId']}
+    AWS_SECRET_ACCESS_KEY: ${outputs['AccessKeySecret']}
+    AWS_REGION: ${outputs['Region']}
     AWS_CF_DIST_ID: ${outputs['DistributionId']}
     AWS_CF_DOMAIN: ${outputs['Domain']}
     ----------------------------

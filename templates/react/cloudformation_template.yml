@@ -71,35 +71,46 @@ Resources:
               OriginProtocolPolicy: http-only
         PriceClass: "PriceClass_All"
   # Create an IAM user with Access Keys to enable automated deployment of the website to this bucket
-  # PublishUser:
-  #   Type: 'AWS::IAM::User'
-  #   Properties:
-  #     Policies:
-  #       - PolicyName: !Sub 'publish-to-${S3Bucket}'
-  #         PolicyDocument:
-  #           Statement:
-  #           - Action: 's3:*'
-  #             Effect: Allow
-  #             Resource:
-  #             - !Sub 'arn:aws:s3:::${S3Bucket}'
-  #             - !Sub 'arn:aws:s3:::${S3Bucket}/*'
-  # PublishCredentials:
-  #   Type: 'AWS::IAM::AccessKey'
-  #   Properties:
-  #     UserName: !Ref PublishUser
+  PublishUser:
+    Type: 'AWS::IAM::User'
+    Properties:
+      Policies:
+        - PolicyName: !Sub 'publish-to-${S3Bucket}'
+          PolicyDocument:
+            Statement:
+            - Action: 's3:*'
+              Effect: Allow
+              Resource:
+              - !Sub 'arn:aws:s3:::${S3Bucket}'
+              - !Sub 'arn:aws:s3:::${S3Bucket}/*'
+        - PolicyName: 'give-access-to-cloudfront'
+          PolicyDocument:
+            Statement:
+            - Action: "cloudfront:CreateInvalidation"
+              Effect: Allow
+              Resource: 
+                - !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+                - !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}/*'
+  PublishCredentials:
+    Type: 'AWS::IAM::AccessKey'
+    Properties:
+      UserName: !Ref PublishUser
 Outputs:
   BucketName:
     Description: "S3 Bucket Name"
     Value: !Ref S3Bucket
-  # AccessKeyId:
-  #   Description: 'S3 Access Key'
-  #   Value: !Ref PublishCredentials
-  # AccessKeySecret:
-  #   Description: 'S3 Secret Key'
-  #   Value: !GetAtt PublishCredentials.SecretAccessKey
+  AccessKeyId:
+    Description: 'S3 Access Key'
+    Value: !Ref PublishCredentials
+  AccessKeySecret:
+    Description: 'S3 Secret Key'
+    Value: !GetAtt PublishCredentials.SecretAccessKey
   DistributionId:
     Description: "CloudFront Distribution ID"
     Value: !Ref CloudFrontDistribution
   Domain:
     Description: "Cloudfront Domain"
     Value: !GetAtt CloudFrontDistribution.DomainName
+  Region:
+    Description: "AWS Region"
+    Value: !Ref AWS::Region
