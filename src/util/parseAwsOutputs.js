@@ -11,20 +11,21 @@ const parseStackOutputJSON = (stackOutputJSON) => {
   }, {});
 };
 
-const createStackOutputMessage = (outputs) => {
-  return `Put these values into your Github Repository Secrets:
-    ----------------------------
-    AWS_S3_BUCKET: ${outputs['BucketName']}
-    AWS_ACCESS_KEY_ID: ${outputs['AccessKeyId']}
-    AWS_SECRET_ACCESS_KEY: ${outputs['AccessKeySecret']}
-    AWS_REGION: ${outputs['Region']}
-    AWS_CF_DIST_ID: ${outputs['DistributionId']}
-    AWS_CF_DOMAIN: ${outputs['Domain']}
-    ----------------------------
-  `;
+// const parseBranchesOutput = (output) => {
+//   return output.split('PRE').map(branch => branch.trim()).slice(1);
+// }
+
+const parseReviewAppPaths = (output, domain) => {
+  const parseAppsRegex = /(s3:\/\/[^\/]+)(\/[^\/]+)(\/[^\/]+)/g;
+  
+  return output.match(parseAppsRegex).map(path => {
+    return path.replace(parseAppsRegex, (_, origin, branch, commit) => {
+      return `https://${domain}${branch}${commit}`;
+    })
+  });
 };
 
 module.exports = {
-  createStackOutputMessage,
   parseStackOutputJSON,
+  parseReviewAppPaths,
 };
