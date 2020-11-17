@@ -63,7 +63,7 @@ const validateStackName = (args) => {
 const validateSSG = (args) => {
   if (!BUILDS.includes(args["ssg"])) {
     throw new Error(
-      `You have failed to provide a valid static site generator! Please use one of the following: ${BUILDS.join(
+      `You have failed to provide a valid build type! Please use one of the following: ${BUILDS.join(
         ", "
       )}.`
     );
