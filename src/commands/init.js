@@ -17,7 +17,7 @@ const { parseStackOutputJSON } = require("../util/parseAwsOutputs");
 const { stackOutputMessage } = require("../util/consoleMessages");
 const { addGithubSecrets } = require("../util/addGithubSecrets");
 
-const SSGS = ["gatsby", "next", "hugo", "react"];
+const BUILDS = ["gatsby", "next", "hugo", "react"];
 
 const createStagehandApp = (args) => {
   const templatePath = getTemplatePath(args.ssg, "cfStack");
@@ -61,15 +61,15 @@ const validateStackName = (args) => {
 };
 
 const validateSSG = (args) => {
-  if (!SSGS.includes(args["ssg"])) {
+  if (!BUILDS.includes(args["ssg"])) {
     throw new Error(
-      `You have failed to provide a valid static site generator! Please use one of the following: ${SSGS.join(
+      `You have failed to provide a valid build type! Please use one of the following: ${BUILDS.join(
         ", "
       )}.`
     );
   } else {
     stagehandLog(
-      `Running stagehand for this repo which uses the ${args["ssg"]} SSG.`
+      `Running stagehand for this repo which uses the ${args["build"]} build.`
     );
   }
 };
@@ -80,7 +80,7 @@ const init = async (args) => {
     validateSSG(args);
     validateStackName(args);
     createWorkflowDir();
-    copyGithubActions(args.ssg);
+    copyGithubActions(args.build);
     createDataFile();
 
     createStagehandApp(args);
