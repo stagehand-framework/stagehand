@@ -20,7 +20,7 @@ const { addGithubSecrets } = require("../util/addGithubSecrets");
 const BUILDS = ["gatsby", "next", "hugo", "react"];
 
 const createStagehandApp = (args) => {
-  const templatePath = getTemplatePath(args.ssg, "cfStack");
+  const templatePath = getTemplatePath(args.build, "cfStack");
   const cmd = createStack(templatePath, args.stackName);
 
   wrapExecCmd(cmd).then((_) => {
@@ -44,6 +44,7 @@ const addAppToData = (name, info) => {
     domain: info["Domain"],
     region: info["Region"],
     id: info["DistributionId"],
+    repo_path: process.cwd(),
   };
 
   writeToDataFile({ ...userApps, [name]: appInfo });
@@ -60,8 +61,8 @@ const validateStackName = (args) => {
   }
 };
 
-const validateSSG = (args) => {
-  if (!BUILDS.includes(args["ssg"])) {
+const validateBuild = (args) => {
+  if (!BUILDS.includes(args["build"])) {
     throw new Error(
       `You have failed to provide a valid build type! Please use one of the following: ${BUILDS.join(
         ", "
@@ -77,7 +78,7 @@ const validateSSG = (args) => {
 const init = async (args) => {
   try {
     createConfigFile();
-    validateSSG(args);
+    validateBuild(args);
     validateStackName(args);
     createWorkflowDir();
     copyGithubActions(args.build);

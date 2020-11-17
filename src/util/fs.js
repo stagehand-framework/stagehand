@@ -45,6 +45,8 @@ const copyGithubActions = (ssg) => {
   );
 };
 
+const deleteGithubActions = () => {};
+
 const createDataFile = () => {
   createFolder(dataFolderPath);
 
