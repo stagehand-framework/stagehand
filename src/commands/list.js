@@ -1,29 +1,36 @@
+const { getAppPathsForS3Bucket } = require('../aws/getBucketObjects');
+
 const { stagehandErr, stagehandLog } = require('../util/logger');
 const { readDataFile } = require('../util/fs');
-const { getS3Branches, getAppsForBranch } = require('../aws/getBucketObjects');
+const { wrapExecCmd } = require('../util/wrapExecCmd');
+const { parseBranchesOutput, parseReviewAppPaths } = require('../util/parseAwsOutputs');
+const { listMessage, noAppFoundMessage } = require('../util/consoleMessages');
 
-module.exports = async function list(args) {
+async function list(args) {
   const userApps = readDataFile();
-  const appName = 'testesttest';
+  const appName = args["stackName"];
+  const appInfo = userApps[appName];
 
-  if (args.length === 0) {
+// List All Apps
+  if (Object.keys(args).length === 0) {
     const stackNames = Object.keys(userApps);
-    const stackNamesStr = stackNames
-      .map((stackName) => {
-        return `--- Name: ${stackName}`;
-      })
-      .join("\n");
+    
+    stagehandLog(listMessage('List of Current Stagehand Apps', stackNames));
 
-    stagehandLog(`Current Active Stagehand Apps
-      ---------------------------
-      ${stackNamesStr}
-      ---------------------------
-    `);
-  } else if (appName) {
-    const branches = getS3Branches(appName)
-    console.log(branches);
-    console.log(typeof branches);
+// List Domains for App
+  } else if (appInfo) {
+    const cmd = getAppPathsForS3Bucket(appInfo.s3);
+
+    wrapExecCmd(cmd).then(output => {
+      const domains = parseReviewAppPaths(output, appInfo.domain);
+
+      stagehandLog(listMessage(appName, domains));
+    });
+
+// Invalid App Name
   } else {
-    stagehandLog(`No stagehand with name ${appName} found`);
+    stagehandLog(noAppFoundMessage(appName));
   }
 };
+
+module.exports = { list };

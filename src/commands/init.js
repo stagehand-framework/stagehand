@@ -15,10 +15,8 @@ const {
 
 const { stagehandErr, stagehandLog } = require("../util/logger");
 const { getTemplatePath } = require("../util/paths");
-const {
-  createStackOutputMessage,
-  parseStackOutputJSON,
-} = require("../util/parseStackOutputs");
+const { parseStackOutputJSON } = require("../util/parseAwsOutputs");
+const { stackOutputMessage } = require("../util/consoleMessages");
 
 const ssgs = ["gatsby", "next", "hugo", "react"];
 
@@ -42,12 +40,16 @@ const createStagehand = (ssg, stackName) => {
   });
 };
 
-const addNewStagehandApp = (info) => {
+const addNewStagehandApp = (name, info) => {
   const userApps = readDataFile();
+  const appInfo = {
+    s3: info["BucketName"],
+    domain: info["Domain"],
+    region: info["Region"],
+    id: info["DistributionId"]
+  };
 
-  userApps[info["stackName"]] = info["bucketName"];
-
-  writeToDataFile(userApps);
+  writeToDataFile({ ...userApps, [name]: appInfo});
 };
 
 const validateStackName = (args) => {
@@ -95,13 +97,10 @@ const init = async (args) => {
           return;
         }
 
-        const stackOutputJSON = parseStackOutputJSON(stdout);
-        const outputMessage = createStackOutputMessage(stackOutputJSON);
+        const stackOutput = parseStackOutputJSON(stdout);
+        const outputMessage = stackOutputMessage(stackOutput);
 
-        addNewStagehandApp({
-          bucketName: stackOutputJSON["BucketName"],
-          stackName: args["stackName"],
-        });
+        addNewStagehandApp(args["stackName"], stackOutput);
 
         stagehandLog(outputMessage);
       });
