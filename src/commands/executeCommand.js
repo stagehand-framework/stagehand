@@ -1,6 +1,8 @@
 const { init } = require("./init");
 const { list } = require("./list");
+const { help } = require("./help");
 const { destroy } = require("./destroy");
+
 const { stagehandErr, stagehandLog } = require("../util/logger");
 
 module.exports = async function executeCommand(command, args) {
@@ -8,6 +10,8 @@ module.exports = async function executeCommand(command, args) {
     init(args);
   } else if (command === "list") {
     list(args);
+  } else if (command === "help") {
+    help(args);
   } else if (command === "destroy") {
     destroy(args);
   } else {
