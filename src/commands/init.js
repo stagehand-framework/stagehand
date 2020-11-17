@@ -1,14 +1,14 @@
 const { getStackOutputs } = require("../aws/getStackOutputs");
 const { createStack } = require("../aws/createStack");
 const { generateRandomStackName } = require("../util/generateRandomStackName");
-const { wrapExecCmd } = require('../util/wrapExecCmd');
-
+const { wrapExecCmd } = require("../util/wrapExecCmd");
 const {
   createWorkflowDir,
   copyGithubActions,
   createDataFile,
   readDataFile,
   writeToDataFile,
+  createConfigFile,
 } = require("../util/fs");
 
 const { stagehandErr, stagehandLog } = require("../util/logger");
@@ -22,11 +22,9 @@ const createStagehandApp = (args) => {
   const templatePath = getTemplatePath(args.ssg, "cfStack");
   const cmd = createStack(templatePath, args.stackName);
 
-  wrapExecCmd(cmd)
-    .then(_ => {
-      const cmd = getStackOutputs(args.stackName);
-      wrapExecCmd(cmd)
-    .then(output => {
+  wrapExecCmd(cmd).then((_) => {
+    const cmd = getStackOutputs(args.stackName);
+    wrapExecCmd(cmd).then((output) => {
       const stackOutput = parseStackOutputJSON(output);
       const outputMessage = stackOutputMessage(stackOutput);
 
@@ -43,10 +41,10 @@ const addAppToData = (name, info) => {
     s3: info["BucketName"],
     domain: info["Domain"],
     region: info["Region"],
-    id: info["DistributionId"]
+    id: info["DistributionId"],
   };
 
-  writeToDataFile({ ...userApps, [name]: appInfo});
+  writeToDataFile({ ...userApps, [name]: appInfo });
 };
 
 const validateStackName = (args) => {
@@ -76,6 +74,7 @@ const validateSSG = (args) => {
 
 const init = async (args) => {
   try {
+    createConfigFile();
     validateSSG(args);
     validateStackName(args);
     createWorkflowDir();

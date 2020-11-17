@@ -1,6 +1,8 @@
 const { init } = require("./init");
 const { list } = require("./list");
 const { help } = require("./help");
+const { destroy } = require("./destroy");
+
 const { stagehandErr, stagehandLog } = require("../util/logger");
 
 module.exports = async function executeCommand(command, args) {
@@ -10,6 +12,8 @@ module.exports = async function executeCommand(command, args) {
     list(args);
   } else if (command === "help") {
     help(args);
+  } else if (command === "destroy") {
+    destroy(args);
   } else {
     stagehandErr(`Command: ${command} is not valid.`);
   }
