@@ -1,42 +1,37 @@
 const { stagehandErr, stagehandLog } = require("../util/logger");
 const readlineSync = require("readline-sync");
-const {
-  createWorkflowDir,
-  copyGithubActions,
-  createDataFile,
-  readDataFile,
-  writeToDataFile,
-} = require("../util/fs");
-const data = readDataFile();
+const { readDataFile, writeToDataFile } = require("../util/fs");
+const userApps = readDataFile();
 
-data.stack2 = {
+userApps.stack2 = {
   s3: "mystack-s3bucket-7koqeoo104jn",
   domain: "d135hwjxj512vl.cloudfront.net",
   region: "us-east-1",
   id: "E1R75VSQK790XS",
 };
 
-const validateDestroy = () => {
+const validateDestroy = (args) => {
+  stagehandLog(args);
   stagehandLog("Are you sure you want to destroy ths app?");
 
   const answer = readlineSync.question(
     "Type the stack name if you are sure:  "
   );
 
-  if (Object.keys(data).includes(answer)) {
-    deleteApp(answer);
+  if (Object.keys(userApps).includes(answer)) {
+    deleteAppFromDataFile(answer);
   }
 
-  stagehandLog(data);
+  stagehandLog(userApps);
 };
 
-const deleteApp = (stackName) => {
-  delete data[stackName];
+const deleteAppFromDataFile = (stackName) => {
+  delete userApps[stackName];
 };
 
-const destroy = async () => {
-  stagehandLog(data);
-  validateDestroy();
+const destroy = async (args) => {
+  stagehandLog(userApps);
+  validateDestroy(args);
 };
 
 module.exports = { destroy };
