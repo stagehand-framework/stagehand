@@ -35,6 +35,8 @@
   },
   "preferGlobal": true,
   "dependencies": {
-    "readline-sync": "^1.4.10"
+    "axios": "^0.21.0",
+    "readline-sync": "^1.4.10",
+    "tweetsodium": "^0.0.5"
   }
 }

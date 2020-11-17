@@ -15,6 +15,7 @@ const { stagehandErr, stagehandLog } = require("../util/logger");
 const { getTemplatePath } = require("../util/paths");
 const { parseStackOutputJSON } = require("../util/parseAwsOutputs");
 const { stackOutputMessage } = require("../util/consoleMessages");
+const { addGithubSecrets } = require("../util/addGithubSecrets");
 
 const SSGS = ["gatsby", "next", "hugo", "react"];
 
@@ -26,6 +27,7 @@ const createStagehandApp = (args) => {
     const cmd = getStackOutputs(args.stackName);
     wrapExecCmd(cmd).then((output) => {
       const stackOutput = parseStackOutputJSON(output);
+      addGithubSecrets(stackOutput);
       const outputMessage = stackOutputMessage(stackOutput);
 
       addAppToData(args.stackName, stackOutput);
