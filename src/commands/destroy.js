@@ -3,6 +3,7 @@ const readlineSync = require("readline-sync");
 const { readDataFile, writeToDataFile } = require("../util/fs");
 const userApps = readDataFile();
 const { deleteStack } = require("../aws/deleteStack");
+const { emptyBucket } = require("../aws/emptyBucket");
 const { wrapExecCmd } = require("../util/wrapExecCmd");
 
 const validateDestroy = (args) => {
@@ -16,13 +17,18 @@ const validateDestroy = (args) => {
 
 const deleteAppFromDataFile = (stackName) => {
   delete userApps[stackName];
+  writeToDataFile(userApps);
 };
 
 const deleteStackResources = (stackName) => {
-  const cmd = deleteStack(stackName);
+  const bucketName = userApps[stackName].s3;
+  const deleteCmd = deleteStack(stackName);
+  const emptyCmd = emptyBucket(bucketName);
 
-  wrapExecCmd(cmd).then((_) => {
-    deleteAppFromDataFile(stackName);
+  wrapExecCmd(emptyCmd).then((_) => {
+    wrapExecCmd(deleteCmd).then((_) => {
+      deleteAppFromDataFile(stackName);
+    });
   });
 };
 
