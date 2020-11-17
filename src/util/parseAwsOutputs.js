@@ -24,7 +24,12 @@ const createStackOutputMessage = (outputs) => {
   `;
 };
 
+const parseBranchesOutput = (output) => {
+  return output.split('PRE').map(branch => branch.trim()).slice(1);
+}
+
 module.exports = {
   createStackOutputMessage,
   parseStackOutputJSON,
+  parseBranchesOutput,
 };
