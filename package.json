@@ -33,5 +33,8 @@
   "bin": {
     "stagehand": "./bin/cli.js"
   },
-  "preferGlobal": true
+  "preferGlobal": true,
+  "dependencies": {
+    "readline-sync": "^1.4.10"
+  }
 }
