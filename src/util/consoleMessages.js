@@ -1,3 +1,4 @@
+// ******** init Command ********
 const stackOutputMessage = (outputs) => {
   return `Put these values into your Github Repository Secrets:
     ----------------------------
@@ -11,6 +12,7 @@ const stackOutputMessage = (outputs) => {
   `;
 };
 
+// ******** list Command ********
 const listMessage = (title, list) => {
   const listStr = list.map((entry) => `--- ${entry}`).join("\n\t");
 

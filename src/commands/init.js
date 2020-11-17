@@ -1,9 +1,7 @@
-const fs = require("fs");
-const { exec } = require("child_process");
-
 const { getStackOutputs } = require("../aws/getStackOutputs");
 const { createStack } = require("../aws/createStack");
 const { generateRandomStackName } = require("../util/generateRandomStackName");
+const { wrapExecCmd } = require('../util/wrapExecCmd');
 
 const {
   createWorkflowDir,
@@ -18,29 +16,28 @@ const { getTemplatePath } = require("../util/paths");
 const { parseStackOutputJSON } = require("../util/parseAwsOutputs");
 const { stackOutputMessage } = require("../util/consoleMessages");
 
-const ssgs = ["gatsby", "next", "hugo", "react"];
+const SSGS = ["gatsby", "next", "hugo", "react"];
 
-const createStagehand = (ssg, stackName) => {
-  return new Promise((resolve, reject) => {
-    const templatePath = getTemplatePath(ssg, "cfStack");
+const createStagehandApp = (args) => {
+  const templatePath = getTemplatePath(args.ssg, "cfStack");
+  const cmd = createStack(templatePath, args.stackName);
 
-    exec(createStack(templatePath, stackName), (error, stdout, stderr) => {
-      if (error) {
-        stagehandErr(`error: ${error.message}`);
-        return;
-      }
+  wrapExecCmd(cmd)
+    .then(_ => {
+      const cmd = getStackOutputs(args.stackName);
+      wrapExecCmd(cmd)
+    .then(output => {
+      const stackOutput = parseStackOutputJSON(output);
+      const outputMessage = stackOutputMessage(stackOutput);
 
-      if (stderr) {
-        resolve(stagehandErr(`stderr: ${stderr}`));
-        return;
-      }
+      addAppToData(args.stackName, stackOutput);
 
-      resolve(stagehandLog(`stdout: ${stdout}`));
+      stagehandLog(outputMessage);
     });
   });
 };
 
-const addNewStagehandApp = (name, info) => {
+const addAppToData = (name, info) => {
   const userApps = readDataFile();
   const appInfo = {
     s3: info["BucketName"],
@@ -64,9 +61,9 @@ const validateStackName = (args) => {
 };
 
 const validateSSG = (args) => {
-  if (!ssgs.includes(args["ssg"])) {
+  if (!SSGS.includes(args["ssg"])) {
     throw new Error(
-      `You have failed to provide a valid static site generator! Please use one of the following: ${ssgs.join(
+      `You have failed to provide a valid static site generator! Please use one of the following: ${SSGS.join(
         ", "
       )}.`
     );
@@ -82,31 +79,12 @@ const init = async (args) => {
     validateSSG(args);
     validateStackName(args);
     createWorkflowDir();
-    copyGithubActions(args["ssg"]);
+    copyGithubActions(args.ssg);
     createDataFile();
 
-    createStagehand(args["ssg"], args["stackName"]).then((resolve) => {
-      exec(getStackOutputs(args["stackName"]), (error, stdout, stderr) => {
-        if (error) {
-          stagehandErr(`error: ${error.message}`);
-          return;
-        }
-
-        if (stderr) {
-          stagehandErr(`stderr: ${stderr}`);
-          return;
-        }
-
-        const stackOutput = parseStackOutputJSON(stdout);
-        const outputMessage = stackOutputMessage(stackOutput);
-
-        addNewStagehandApp(args["stackName"], stackOutput);
-
-        stagehandLog(outputMessage);
-      });
-    });
+    createStagehandApp(args);
   } catch (err) {
-    stagehandErr(`Error: ${err}`);
+    stagehandErr(`Could not initialize app:\n ${err}`);
   }
 };
 
