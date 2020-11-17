@@ -38,9 +38,18 @@ async function addGithubSecrets(secrets) {
   const public_key = response.data.key;
   const key_id = response.data.key_id;
 
+  const remap = {
+    BucketName: "AWS_S3_BUCKET",
+    AccessKeyId: "AWS_ACCESS_KEY_ID",
+    AccessKeySecret: "AWS_SECRET_ACCESS_KEY",
+    Region: "AWS_REGION",
+    DistributionId: "AWS_CF_DIST_ID",
+    Domain: "AWS_CF_DOMAIN",
+  };
+
   // then each secret requires its own put request to update/create
   await Object.keys(secrets).map(async (key) => {
-    const secret_name = key;
+    const secret_name = remap[key];
     const secret_val = secrets[key];
     const encrypted_secret_val = encrypt(public_key, secret_val);
     stagehandLog(`The ${secret_name} secret has been encrypted.`);
