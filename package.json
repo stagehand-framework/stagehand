@@ -31,7 +31,10 @@
     "url": "https://github.com/stagehand-framework/stagehand/issues"
   },
   "bin": {
-    "stagehand": "./bin/cli.js"
+    "stagehand": "bin/cli.js"
   },
-  "preferGlobal": true
+  "preferGlobal": true,
+  "dependencies": {
+    "readline-sync": "^1.4.10"
+  }
 }
