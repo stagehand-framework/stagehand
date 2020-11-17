@@ -28,11 +28,11 @@ const createStagehandApp = (args) => {
     wrapExecCmd(cmd).then((output) => {
       const stackOutput = parseStackOutputJSON(output);
       addGithubSecrets(stackOutput);
-      const outputMessage = stackOutputMessage(stackOutput);
+      // const outputMessage = stackOutputMessage(stackOutput);
 
       addAppToData(args.stackName, stackOutput);
 
-      stagehandLog(outputMessage);
+      // stagehandLog(outputMessage);
     });
   });
 };

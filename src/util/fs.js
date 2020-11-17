@@ -11,7 +11,6 @@ const {
   frameworkCreateReviewAppPath,
 } = require("./paths");
 const { stagehandErr, stagehandLog } = require("./logger");
-const { wrapExecCmd } = require("./wrapExecCmd");
 
 const readlineSync = require("readline-sync");
 
@@ -72,20 +71,23 @@ const createConfigFile = () => {
       "Please provide the github access token (https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token): "
     );
 
-    wrapExecCmd("git config --get remote.origin.url").then((url) => {
-      const parts = url.split("/");
-      const owner = parts[parts.length - 2];
-      const repo = parts[parts.length - 1].slice(0, -5);
+    // wrapExecCmd("git config --get remote.origin.url").then((url) => {
+    //   const parts = url.split("/");
+    //   const owner = parts[parts.length - 2];
+    //   const repo = parts[parts.length - 1].slice(0, -5);
 
-      const obj = {
-        github_access_token: github_access_token,
-        owner: owner,
-        repo: repo,
-      };
-      console.log(obj);
-      writeToConfigFile(obj);
-      stagehandLog("Config File created");
-    });
+    //   const obj = {
+    //     github_access_token: github_access_token,
+    //     owner: owner,
+    //     repo: repo,
+    //   };
+    //   console.log(obj);
+    //   writeToConfigFile(obj);
+    //   stagehandLog("Config File created");
+    // });
+
+    writeToConfigFile({ github_access_token: github_access_token });
+    stagehandLog("Config File created");
   } else {
     let github_access_token = readConfigFile().github_access_token;
     stagehandLog(
