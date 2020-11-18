@@ -28,7 +28,7 @@ async function addGithubSecrets(secrets) {
 
     const obj = {
       headers: {
-        Authorization: github_access_token,
+        Authorization: `token ${github_access_token}`,
         "Content-Type": "application/json",
         Accept: "application/vnd.github.v3+json",
       },
