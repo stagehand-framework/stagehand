@@ -16,6 +16,7 @@ const userRemoveReviewAppPath = path.join(
 const dataFolderPath = path.join(process.env.HOME, "/.stagehand");
 const dataPath = path.join(process.env.HOME, "/.stagehand/userApps.json");
 const configPath = path.join(process.env.HOME, "/.stagehand/config.json");
+const logPath = path.join(process.env.HOME, "/.stagehand/log.json");
 const gitPath = path.join(process.cwd(), "/.git");
 
 const frameworkCreateReviewAppPath = (ssg) =>
@@ -43,6 +44,7 @@ module.exports = {
   userRemoveReviewAppPath,
   dataPath,
   configPath,
+  logPath,
   gitPath,
   dataFolderPath,
   frameworkRemoveReviewAppPath,
