@@ -11,8 +11,9 @@ const {
   createConfigFile,
   isRepo,
 } = require("../util/fs");
+const { startSpinner, stopSpinner } = require("../util/spinner");
 
-const { stagehandErr, stagehandLog, stagehandSuccess } = require("../util/logger");
+const { stagehandErr, stagehandLog, stagehandSuccess, stagehandWarn } = require("../util/logger");
 const { getTemplatePath } = require("../util/paths");
 const { parseStackOutputJSON } = require("../util/parseAwsOutputs");
 const { stackOutputMessage } = require("../util/consoleMessages");
@@ -24,16 +25,19 @@ const createStagehandApp = (args) => {
   const templatePath = getTemplatePath(args.build, "cfStack");
   const cmd = createStack(templatePath, args.stackName);
 
+  stagehandWarn(`Provisioning AWS infrastructure. This may take a few minutes\n Grab a coffee while you wait`);
+  const spinner = startSpinner();
+
   wrapExecCmd(cmd).then((_) => {
+    stopSpinner(spinner);
+    stagehandSuccess('created', 'AWS infrastructure:');
+
     const cmd = getStackOutputs(args.stackName);
     wrapExecCmd(cmd).then((output) => {
       const stackOutput = parseStackOutputJSON(output);
       addGithubSecrets(stackOutput);
-      // const outputMessage = stackOutputMessage(stackOutput);
 
       addAppToData(args.stackName, stackOutput);
-
-      // stagehandLog(outputMessage);
     });
   });
 };

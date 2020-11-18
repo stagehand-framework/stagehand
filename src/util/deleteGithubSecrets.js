@@ -1,6 +1,6 @@
 const axios = require("axios");
 const { readConfigFile } = require("./fs");
-const { stagehandErr, stagehandLog } = require("./logger");
+const { stagehandErr, stagehandWarn, stagehandSuccess } = require("./logger");
 const { wrapExecCmd } = require("./wrapExecCmd");
 
 async function deleteGithubSecrets() {
@@ -23,7 +23,7 @@ async function deleteGithubSecrets() {
 
     // request is made to get public key
     let response = await axios.get(url, obj);
-    stagehandLog("Public key retrieved.");
+    stagehandSuccess("retrieved", "Public key:");
     const public_key = response.data.key;
     const key_id = response.data.key_id;
 
@@ -38,8 +38,10 @@ async function deleteGithubSecrets() {
 
     await secrets.forEach(async (secret_name) => {
       url = `https://api.github.com/repos/${owner}/${repo}/actions/secrets/${secret_name}`;
+      
+      stagehandWarn(`Removing ${secret_name} secret...`);
       await axios.delete(url, obj);
-      stagehandLog(`The ${secret_name} secret has been removed.`);
+      stagehandSuccess("removed", `${secret_name} secret has been:`);
     });
   });
 }

@@ -30,23 +30,19 @@ const createWorkflowDir = () => {
 };
 
 const copyGithubActions = (ssg) => {
-  fs.copyFile(
+  fs.copyFileSync(
     frameworkCreateReviewAppPath(ssg),
     userCreateReviewAppPath,
-    (err) => {
-      if (err) throw err;
-      stagehandSuccess("created", "Create review app Github action: ");
-    }
   );
+  
+  stagehandSuccess("created", "Create review app Github action: ");
 
-  fs.copyFile(
+  fs.copyFileSync(
     frameworkRemoveReviewAppPath(ssg),
     userRemoveReviewAppPath,
-    (err) => {
-      if (err) throw err;
-      stagehandSuccess("created", "Remove review app Github action: ");
-    }
   );
+
+  stagehandSuccess("created", "Remove review app Github action: ");
 };
 
 const deleteGithubActions = (repo_path) => {
