@@ -34,7 +34,6 @@ const deleteStackResources = (stackName) => {
     wrapExecCmd(deleteCmd).then((_) => {
       deleteGithubActions(repo_path);
       deleteAppFromDataFile(stackName);
-      deleteGithubActions(userApps[args.stackName].repo_path);
     });
   });
 };
