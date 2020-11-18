@@ -9,9 +9,10 @@ const {
   readDataFile,
   writeToDataFile,
   createConfigFile,
+  isRepo,
 } = require("../util/fs");
 
-const { stagehandErr, stagehandLog } = require("../util/logger");
+const { stagehandErr, stagehandLog, stagehandSuccess } = require("../util/logger");
 const { getTemplatePath } = require("../util/paths");
 const { parseStackOutputJSON } = require("../util/parseAwsOutputs");
 const { stackOutputMessage } = require("../util/consoleMessages");
@@ -53,11 +54,9 @@ const addAppToData = (name, info) => {
 const validateStackName = (args) => {
   if (!args["stackName"]) {
     args["stackName"] = generateRandomStackName();
-    stagehandLog(
-      `You have failed to provide a stack name. Creating a random one: ${args["stackName"]}`
-    );
+    stagehandLog(args["stackName"], `Generating random stack name:`);
   } else {
-    stagehandLog(`The stack name will be ${args["stackName"]}.`);
+    stagehandSuccess(args["stackName"], "Stack name:");
   }
 };
 
@@ -69,14 +68,15 @@ const validateBuild = (args) => {
       )}.`
     );
   } else {
-    stagehandLog(
-      `Running stagehand for this repo which uses the ${args["build"]} build.`
-    );
+    stagehandSuccess(args["build"], "Creating Github action files for:");
   }
 };
 
 const init = async (args) => {
   try {
+    if (!isRepo()) {
+      throw `Current directory is not a git repository or it is not tied to a GitHub Origin`;
+    }
     createConfigFile();
     validateBuild(args);
     validateStackName(args);
@@ -86,7 +86,7 @@ const init = async (args) => {
 
     createStagehandApp(args);
   } catch (err) {
-    stagehandErr(`Could not initialize app:\n ${err}`);
+    stagehandErr(`Could not initialize app:\n${err}`);
   }
 };
 

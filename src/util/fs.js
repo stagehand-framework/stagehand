@@ -1,4 +1,5 @@
 const fs = require("fs");
+const { wrapExecCmd } = require('./wrapExecCmd');
 const {
   githubFolderPath,
   workflowFolderPath,
@@ -6,17 +7,20 @@ const {
   userRemoveReviewAppPath,
   dataPath,
   configPath,
+  logPath,
+  gitPath,
   dataFolderPath,
   frameworkRemoveReviewAppPath,
   frameworkCreateReviewAppPath,
 } = require("./paths");
-const { stagehandErr, stagehandLog } = require("./logger");
+const { stagehandErr, stagehandLog, stagehandSuccess } = require("./logger");
 
 const readlineSync = require("readline-sync");
 
 const createFolder = (path) => {
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path);
+    stagehandSuccess(path, "Stagehand folder created: ");
   }
 };
 
@@ -31,7 +35,7 @@ const copyGithubActions = (ssg) => {
     userCreateReviewAppPath,
     (err) => {
       if (err) throw err;
-      stagehandLog("Create review app action created");
+      stagehandSuccess("created", "Create review app Github action: ");
     }
   );
 
@@ -40,7 +44,7 @@ const copyGithubActions = (ssg) => {
     userRemoveReviewAppPath,
     (err) => {
       if (err) throw err;
-      stagehandLog("Remove review app action created");
+      stagehandSuccess("created", "Remove review app Github action: ");
     }
   );
 };
@@ -58,12 +62,19 @@ const deleteGithubActions = (repo_path) => {
   }
 };
 
+const isRepo = () => {
+  if (!fs.existsSync(gitPath)) return false;
+  return wrapExecCmd("git config --get remote.origin.url").then(url => {
+    return !!url;
+  })
+}
+
 const createDataFile = () => {
   createFolder(dataFolderPath);
 
   if (!fs.existsSync(dataPath)) {
     writeToDataFile({});
-    stagehandLog("Data File created");
+    stagehandSuccess("created", "Stagehand data file: ");
   }
 };
 
@@ -81,31 +92,16 @@ const createConfigFile = () => {
 
   if (!fs.existsSync(configPath)) {
     const github_access_token = readlineSync.question(
-      "Please provide the github access token (https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token): "
+      `Please provide the github access token (https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token)
+      Only permission for access token needed is repo.
+      Enter token: `
     );
-
-    // wrapExecCmd("git config --get remote.origin.url").then((url) => {
-    //   const parts = url.split("/");
-    //   const owner = parts[parts.length - 2];
-    //   const repo = parts[parts.length - 1].slice(0, -5);
-
-    //   const obj = {
-    //     github_access_token: github_access_token,
-    //     owner: owner,
-    //     repo: repo,
-    //   };
-    //   console.log(obj);
-    //   writeToConfigFile(obj);
-    //   stagehandLog("Config File created");
-    // });
 
     writeToConfigFile({ github_access_token: github_access_token });
-    stagehandLog("Config File created");
+    stagehandSuccess("saved", "Stagehand configuration: ");
   } else {
     let github_access_token = readConfigFile().github_access_token;
-    stagehandLog(
-      `Config File already exists with this github access token: ${github_access_token}`
-    );
+    stagehandSuccess(github_access_token, `Stagehand is already configured with token: `)
   }
 };
 
@@ -118,7 +114,19 @@ const writeToConfigFile = (config) => {
   fs.writeFileSync(configPath, JSON.stringify(config));
 };
 
+const writeToLogFile = (data, start = false) => {
+  if (start) {
+    fs.appendFileSync(
+      logPath,
+      `----------------------------------\nCommand: ${data}\n`
+    );
+  } else {
+    fs.appendFileSync(logPath, `\nOutput:\n ${data}\n`);
+  }
+};
+
 module.exports = {
+  isRepo,
   createFolder,
   createWorkflowDir,
   copyGithubActions,
@@ -128,5 +136,6 @@ module.exports = {
   createConfigFile,
   readConfigFile,
   writeToConfigFile,
+  writeToLogFile,
   deleteGithubActions,
 };

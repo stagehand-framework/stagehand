@@ -5,24 +5,31 @@ const yellow = "[33m";
 const green = "[32m";
 const help = "[1;36m";
 
+const { writeToLogFile } = require("./fs");
+
 const stagehandErr = (text) => {
+  writeToLogFile(text);
   console.log(`Error ${escape}${red}`, text, reset);
 };
 
 const stagehandWarn = (text) => {
-  console.log(`Warning ${escape}${yellow}`, text, reset);
+  writeToLogFile(text);
+  console.log(`${escape}${yellow}`, text, reset);
 };
 
 const stagehandLog = (text) => {
+  writeToLogFile(text);
   console.log(text);
 };
 
 const stagehandHelp = (text) => {
+  writeToLogFile(text);
   console.log(`${escape}${help}`, text, reset);
 };
 
-const stagehandSuccess = (text) => {
-  console.log(`${escape}${green}`, text, reset);
+const stagehandSuccess = (successText, text) => {
+  writeToLogFile(text);
+  console.log(`${text}${escape}${green}`, successText, reset);
 };
 
 module.exports = {
