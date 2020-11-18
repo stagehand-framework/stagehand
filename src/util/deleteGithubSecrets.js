@@ -49,6 +49,12 @@ async function deleteGithubSecrets() {
       "AWS_CF_DOMAIN",
     ];
 
+    await secrets.forEach(async (secret_name) => {
+      url = `https://api.github.com/repos/${owner}/${repo}/actions/secrets/${secret_name}`;
+      await axios.delete(url, obj);
+      stagehandLog(`The ${secret_name} secret has been removed.`);
+    });
+
     // then each secret requires its own put request to update/create
     // await Object.keys(secrets).map(async (key) => {
     //   const secret_name = remap[key];
