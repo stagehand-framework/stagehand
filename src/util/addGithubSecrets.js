@@ -1,6 +1,6 @@
 const axios = require("axios");
 const { readConfigFile } = require("./fs");
-const { stagehandErr, stagehandLog } = require("./logger");
+const { stagehandErr, stagehandLog, stagehandSuccess, stagehandWarn } = require("./logger");
 const { wrapExecCmd } = require("./wrapExecCmd");
 
 const encrypt = (public_key, secret_val) => {
@@ -36,7 +36,7 @@ async function addGithubSecrets(secrets) {
 
     // request is made to get public key
     let response = await axios.get(url, obj);
-    stagehandLog("Public key retrieved.");
+    stagehandSuccess("retrieved", "Public key:");
     const public_key = response.data.key;
     const key_id = response.data.key_id;
 
@@ -54,7 +54,7 @@ async function addGithubSecrets(secrets) {
       const secret_name = remap[key];
       const secret_val = secrets[key];
       const encrypted_secret_val = encrypt(public_key, secret_val);
-      stagehandLog(`The ${secret_name} secret has been encrypted.`);
+      stagehandWarn(`${secret_name} has been encrypted.`);
 
       url = `https://api.github.com/repos/${owner}/${repo}/actions/secrets/${secret_name}`;
       const data = {
@@ -63,7 +63,7 @@ async function addGithubSecrets(secrets) {
       };
 
       await axios.put(url, data, obj);
-      stagehandLog(`The ${secret_name} secret has been created/upated.`);
+      stagehandSuccess("created", `${secret_name} secret has been:`);
     });
   });
 }

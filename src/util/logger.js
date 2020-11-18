@@ -14,7 +14,7 @@ const stagehandErr = (text) => {
 
 const stagehandWarn = (text) => {
   writeToLogFile(text);
-  console.log(`Warning ${escape}${yellow}`, text, reset);
+  console.log(`${escape}${yellow}`, text, reset);
 };
 
 const stagehandLog = (text) => {
@@ -27,9 +27,9 @@ const stagehandHelp = (text) => {
   console.log(`${escape}${help}`, text, reset);
 };
 
-const stagehandSuccess = (text) => {
+const stagehandSuccess = (successText, text) => {
   writeToLogFile(text);
-  console.log(`${escape}${green}`, text, reset);
+  console.log(`${text}${escape}${green}`, successText, reset);
 };
 
 module.exports = {
