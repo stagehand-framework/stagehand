@@ -45,6 +45,19 @@ const copyGithubActions = (ssg) => {
   );
 };
 
+const deleteGithubActions = (repo_path) => {
+  fs.unlinkSync(repo_path + "/.github/workflows/create_review_app.yml");
+  fs.unlinkSync(repo_path + "/.github/workflows/remove_review_app.yml");
+
+  if (
+    fs.readdirSync(repo_path + "/.github/workflows").length === 0 &&
+    fs.readdirSync(repo_path + "/.github").length === 1
+  ) {
+    fs.rmdirSync(repo_path + "/.github/workflows");
+    fs.rmdirSync(repo_path + "/.github");
+  }
+};
+
 const createDataFile = () => {
   createFolder(dataFolderPath);
 
@@ -115,4 +128,5 @@ module.exports = {
   createConfigFile,
   readConfigFile,
   writeToConfigFile,
+  deleteGithubActions,
 };

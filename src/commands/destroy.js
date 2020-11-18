@@ -1,6 +1,10 @@
 const { stagehandErr, stagehandLog } = require("../util/logger");
 const readlineSync = require("readline-sync");
-const { readDataFile, writeToDataFile } = require("../util/fs");
+const {
+  readDataFile,
+  writeToDataFile,
+  deleteGithubActions,
+} = require("../util/fs");
 const userApps = readDataFile();
 const { deleteStack } = require("../aws/deleteStack");
 const { emptyBucket } = require("../aws/emptyBucket");
@@ -24,9 +28,11 @@ const deleteStackResources = (stackName) => {
   const bucketName = userApps[stackName].s3;
   const deleteCmd = deleteStack(stackName);
   const emptyCmd = emptyBucket(bucketName);
+  const repo_path = userApps[stackName].repo_path;
 
   wrapExecCmd(emptyCmd).then((_) => {
     wrapExecCmd(deleteCmd).then((_) => {
+      deleteGithubActions(repo_path);
       deleteAppFromDataFile(stackName);
     });
   });
