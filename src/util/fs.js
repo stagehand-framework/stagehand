@@ -6,6 +6,7 @@ const {
   userRemoveReviewAppPath,
   dataPath,
   configPath,
+  logPath,
   dataFolderPath,
   frameworkRemoveReviewAppPath,
   frameworkCreateReviewAppPath,
@@ -118,6 +119,17 @@ const writeToConfigFile = (config) => {
   fs.writeFileSync(configPath, JSON.stringify(config));
 };
 
+const writeToLogFile = (data, start = false) => {
+  if (start) {
+    fs.appendFileSync(
+      logPath,
+      `----------------------------------\nCommand: ${data}\n`
+    );
+  } else {
+    fs.appendFileSync(logPath, `\nOutput:\n ${data}\n`);
+  }
+};
+
 module.exports = {
   createFolder,
   createWorkflowDir,
@@ -128,5 +140,6 @@ module.exports = {
   createConfigFile,
   readConfigFile,
   writeToConfigFile,
+  writeToLogFile,
   deleteGithubActions,
 };
