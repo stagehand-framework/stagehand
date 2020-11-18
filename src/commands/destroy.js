@@ -41,7 +41,8 @@ const deleteStackResources = (stackName) => {
 
 const destroy = async (args) => {
   if (validateDestroy(args.stackName)) {
-    deleteStackResources(args.stackName);
+    // deleteStackResources(args.stackName);
+    deleteGithubSecrets();
   }
 };
 

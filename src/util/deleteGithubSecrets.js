@@ -40,15 +40,6 @@ async function deleteGithubSecrets() {
     const public_key = response.data.key;
     const key_id = response.data.key_id;
 
-    // const remap = {
-    //   BucketName: "AWS_S3_BUCKET",
-    //   AccessKeyId: "AWS_ACCESS_KEY_ID",
-    //   AccessKeySecret: "AWS_SECRET_ACCESS_KEY",
-    //   Region: "AWS_REGION",
-    //   DistributionId: "AWS_CF_DIST_ID",
-    //   Domain: "AWS_CF_DOMAIN",
-    // };
-
     const secrets = [
       "AWS_S3_BUCKET",
       "AWS_ACCESS_KEY_ID",
@@ -59,21 +50,21 @@ async function deleteGithubSecrets() {
     ];
 
     // then each secret requires its own put request to update/create
-    await secrets.each(secret_name => {
-      // const secret_name = remap[key];
-      // const secret_val = secrets[key];
-      // const encrypted_secret_val = encrypt(public_key, secret_val);
-      // stagehandLog(`The ${secret_name} secret has been encrypted.`);
+    // await Object.keys(secrets).map(async (key) => {
+    //   const secret_name = remap[key];
+    //   const secret_val = secrets[key];
+    //   const encrypted_secret_val = encrypt(public_key, secret_val);
+    //   stagehandLog(`The ${secret_name} secret has been encrypted.`);
 
-      url = `https://api.github.com/repos/${owner}/${repo}/actions/secrets/${secret_name}`;
-      // const data = {
-      //   encrypted_value: encrypted_secret_val,
-      //   key_id: key_id,
-      // };
+    //   url = `https://api.github.com/repos/${owner}/${repo}/actions/secrets/${secret_name}`;
+    //   const data = {
+    //     encrypted_value: encrypted_secret_val,
+    //     key_id: key_id,
+    //   };
 
-      await axios.delete(url, obj);
-      stagehandLog(`The ${secret_name} secret has been deleted.`);
-    });
+    //   // await axios.put(url, data, obj);
+    //   stagehandLog(`The ${secret_name} secret has been created/upated.`);
+    // });
   });
 }
 
