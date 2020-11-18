@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { wrapExecCmd } = require('./wrapExecCmd');
+const { wrapExecCmd } = require("./wrapExecCmd");
 const {
   githubFolderPath,
   workflowFolderPath,
@@ -60,10 +60,10 @@ const deleteGithubActions = (repo_path) => {
 
 const isRepo = () => {
   if (!fs.existsSync(gitPath)) return false;
-  return wrapExecCmd("git config --get remote.origin.url").then(url => {
+  return wrapExecCmd("git config --get remote.origin.url").then((url) => {
     return !!url;
-  })
-}
+  });
+};
 
 const createDataFile = () => {
   createFolder(dataFolderPath);
@@ -97,7 +97,10 @@ const createConfigFile = () => {
     stagehandSuccess("saved", "Stagehand configuration: ");
   } else {
     let github_access_token = readConfigFile().github_access_token;
-    stagehandSuccess(github_access_token, `Stagehand is already configured with token: `)
+    stagehandSuccess(
+      github_access_token,
+      `Stagehand is already configured with token: `
+    );
   }
 };
 
@@ -110,15 +113,8 @@ const writeToConfigFile = (config) => {
   fs.writeFileSync(configPath, JSON.stringify(config));
 };
 
-const writeToLogFile = (data, start = false) => {
-  if (start) {
-    fs.appendFileSync(
-      logPath,
-      `----------------------------------\nCommand: ${data}\n`
-    );
-  } else {
-    fs.appendFileSync(logPath, `\nOutput:\n ${data}\n`);
-  }
+const writeToLogFile = (data) => {
+  fs.appendFileSync(logPath, `${data}\n`);
 };
 
 module.exports = {

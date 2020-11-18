@@ -10,7 +10,7 @@ const [, , command, ...args] = process.argv;
 (async () => {
   try {
     const cmd = `stagehand ${[command].concat(args).join(" ")}`;
-    writeToLogFile(cmd, true);
+    writeToLogFile(cmd);
     const filteredArgs = handleArgs(args);
     await executeCommand(command, filteredArgs);
   } catch (err) {
