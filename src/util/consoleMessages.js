@@ -1,3 +1,5 @@
+const { stagehandLog, stagehandSuccess } = require("./logger");
+
 // ******** help Command ********
 const builds = ["next", "hugo", "gatsby", "react"];
 const commands = ["help", "init", "list", "destroy"];
@@ -68,23 +70,32 @@ const stackOutputMessage = (outputs) => {
 };
 
 // ******** list Command ********
-const listMessage = (title, list) => {
-  const listStr = list.map((entry) => `--- ${entry}`).join("\n\t");
+const displayListMessage = (title, list) => {
+  let currentMatch;
+  let previousMatch;
+  const isDomainsList = list[0].match(/cloudfront\.net/);
+  stagehandLog(`\n\t${title}\n\t---------------------------`);
 
-  return `
-    ${title}
-\t---------------------------
-\t${listStr}
-\t---------------------------
-  `;
+  list.forEach((entry, idx) => {
+    if (isDomainsList) {
+      currentMatch = entry.match(/\.net\/[^\/]+/)[0];
+      if (currentMatch !== previousMatch && idx !== 0) console.log('');
+      stagehandSuccess(`${entry}`, "\t---");
+      previousMatch = currentMatch;
+    } else {
+      stagehandSuccess(`${entry}`, "\t---");
+    }
+  });
+
+  stagehandLog("\t---------------------------\n")
 };
 
 const noAppFoundMessage = (appName) =>
-  `\nNo stagehand with name ${appName} found\n`;
+  ` No stagehand with name ${appName} found`;
 
 module.exports = {
   stackOutputMessage,
-  listMessage,
+  displayListMessage,
   noAppFoundMessage,
   helpLogs,
 };

@@ -10,7 +10,7 @@ const stagehandErr = (text) => {
 };
 
 const stagehandWarn = (text) => {
-  console.log(`Warning ${escape}${yellow}`, text, reset);
+  console.log(`${escape}${yellow}`, text, reset);
 };
 
 const stagehandLog = (text) => {
@@ -21,8 +21,8 @@ const stagehandHelp = (text) => {
   console.log(`${escape}${help}`, text, reset);
 };
 
-const stagehandSuccess = (text) => {
-  console.log(`${escape}${green}`, text, reset);
+const stagehandSuccess = (successText, text) => {
+  console.log(`${text}${escape}${green}`, successText, reset);
 };
 
 module.exports = {
