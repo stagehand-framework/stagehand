@@ -41,22 +41,26 @@ const deleteStackResources = (stackName) => {
   stagehandWarn("Emptying S3 bucket...");
 
   wrapExecCmd(emptyCmd).then((_) => {
-    stagehandSuccess("S3 Bucket emptied");
+    stagehandSuccess("emptied", " S3 Bucket:");
     stagehandWarn("Removing AWS stack infrastructure...");
 
     wrapExecCmd(deleteCmd).then((_) => {
-      stagehandSuccess("AWS stack infrastructure removed");
+      stagehandSuccess("removed", " AWS stack infrastructure:");
 
       stagehandWarn("Deleting GitHub actions...");
       deleteGithubActions(repo_path);
-      stagehandSuccess("GitHub actions deleted.");
+      stagehandSuccess("deleted", " GitHub actions:");
 
-      stagehandWarn("Removing stack data...");
-      deleteAppFromDataFile(stackName);
-      stagehandSuccess("Stack data Removed");
+      deleteData(stackName);
     });
   });
 };
+
+const deleteData = (stackName) => {
+  stagehandWarn("Removing stack data locally...");
+  deleteAppFromDataFile(stackName);
+  stagehandSuccess("removed", " Stack data:");
+}
 
 const destroy = async (args) => {
   try {
@@ -65,10 +69,13 @@ const destroy = async (args) => {
       return stagehandWarn(
         'Please provide a stackName: "stagehand destroy --stackName <name>"'
       );
-    if (!userApps[stackName])
-      return stagehandWarn(`No stack with name ${stackName} found`);
+    const stack = userApps[stackName];
+
+    if (!stack) return stagehandWarn(`No stack with name ${stackName} found`);
 
     if (validateDestroy(stackName)) {
+      if (stack.notOwnStack) return deleteData(stackName);
+      
       deleteStackResources(stackName);
       deleteGithubSecrets();
     } else {

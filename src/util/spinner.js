@@ -3,6 +3,7 @@ const rl = require('readline');
 const std = process.stdout;
 
 const startSpinner = () => {
+  // Remove cursor
   process.stdout.write("\x1B[?25l");
 
   const spinners = ['=', '\\', '|', '/'];
@@ -18,6 +19,7 @@ const startSpinner = () => {
 
     std.write(spinnerLine);
 
+    // Move cursor to start of line
     rl.cursorTo(std, 0);
 
     idx += 1;
@@ -26,18 +28,11 @@ const startSpinner = () => {
 
 const stopSpinner = (id) => {
   clearInterval(id);
+  // Bring back cursor
   process.stdout.write("\x1B[?25h")
 }
 
 module.exports = {
   startSpinner,
   stopSpinner,
-}
-
-// while (idx < 100) {
-//   let spinnerLine = line
-//   spinnerLine[idx % line.length] = spinners[idx % spinners.length];
-
-//   idx+=1;
-//   console.log(spinnerLine);
-// }
+};

@@ -19,6 +19,8 @@ const configPath = path.join(process.env.HOME, "/.stagehand/config.json");
 const logPath = path.join(process.env.HOME, "/.stagehand/log.txt");
 const gitPath = path.join(process.cwd(), "/.git");
 
+const domainPath = (domain) => path.join(process.cwd(), `/${domain}`);
+
 const frameworkCreateReviewAppPath = (ssg) =>
   path.join(rootFrameworkPath, `/templates/${ssg}/create_review_app.yml`);
 const frameworkRemoveReviewAppPath = (ssg) =>
@@ -47,6 +49,7 @@ module.exports = {
   logPath,
   gitPath,
   dataFolderPath,
+  domainPath,
   frameworkRemoveReviewAppPath,
   frameworkCreateReviewAppPath,
   getTemplatePath,

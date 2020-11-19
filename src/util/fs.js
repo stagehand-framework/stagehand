@@ -11,6 +11,7 @@ const {
   configPath,
   logPath,
   gitPath,
+  domainPath,
   dataFolderPath,
   frameworkRemoveReviewAppPath,
   frameworkCreateReviewAppPath,
@@ -129,6 +130,12 @@ const writeToLogFile = (command, args) => {
   fs.appendFileSync(logPath, `${data}\n`);
 };
 
+const createDomainFile = (domain) => {
+  const currentDomainPath = domainPath(domain);
+  fs.writeFileSync(currentDomainPath, '');
+  return currentDomainPath;
+}
+
 module.exports = {
   isRepo,
   createFolder,
@@ -141,5 +148,6 @@ module.exports = {
   readConfigFile,
   writeToConfigFile,
   writeToLogFile,
+  createDomainFile,
   deleteGithubActions,
 };

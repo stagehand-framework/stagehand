@@ -1,5 +1,6 @@
 const { getStackOutputs } = require("../aws/getStackOutputs");
 const { createStack } = require("../aws/createStack");
+const { addDomainFileToS3 } = require("../aws/addDomainFileToS3");
 const { generateRandomStackName } = require("../util/generateRandomStackName");
 const { wrapExecCmd } = require("../util/wrapExecCmd");
 const {
@@ -9,6 +10,7 @@ const {
   readDataFile,
   writeToDataFile,
   createConfigFile,
+  createDomainFile,
   isRepo,
 } = require("../util/fs");
 const { startSpinner, stopSpinner } = require("../util/spinner");
@@ -28,18 +30,28 @@ const createStagehandApp = (args) => {
   stagehandWarn(`Provisioning AWS infrastructure. This may take a few minutes\n Grab a coffee while you wait`);
   const spinner = startSpinner();
 
-  wrapExecCmd(cmd).then((_) => {
-    stopSpinner(spinner);
-    stagehandSuccess('created', 'AWS infrastructure:');
+  wrapExecCmd(cmd)
+    .then((_) => {
+      stopSpinner(spinner);
+      stagehandSuccess('created', 'AWS infrastructure:');
 
-    const cmd = getStackOutputs(args.stackName);
-    wrapExecCmd(cmd).then((output) => {
-      const stackOutput = parseStackOutputJSON(output);
-      addGithubSecrets(stackOutput);
+      const cmd = getStackOutputs(args.stackName);
+      wrapExecCmd(cmd)
+        .then((output) => {
+          const stackOutput = parseStackOutputJSON(output);
+          addGithubSecrets(stackOutput);
 
-      addAppToData(args.stackName, stackOutput);
+          addAppToData(args.stackName, stackOutput);
+          const path = createDomainFile(stackOutput["Domain"]);
+
+          wrapExecCmd(addDomainFileToS3(path, stackOutput["BucketName"]))
+            .then(_ => stagehandSuccess("added", "S3 domain file:"))
+            .catch(err => stagehandErr("Could not add domain file"));
+        }).catch(err => stagehandErr(err));
+    }).catch(err => {
+      stopSpinner(spinner);
+      stagehandErr(err);
     });
-  });
 };
 
 const addAppToData = (name, info) => {
@@ -58,7 +70,7 @@ const addAppToData = (name, info) => {
 const validateStackName = (args) => {
   if (!args["stackName"]) {
     args["stackName"] = generateRandomStackName();
-    stagehandLog(args["stackName"], `Generating random stack name:`);
+    stagehandSuccess(args["stackName"], `Generating random stack name:`);
   } else {
     stagehandSuccess(args["stackName"], "Stack name:");
   }
@@ -75,6 +87,11 @@ const validateBuild = (args) => {
     stagehandSuccess(args["build"], "Creating Github action files for:");
   }
 };
+
+const setUpS3Bucket = (domain) => {
+  createDomainFile(domain);
+  addDomain
+}
 
 const init = async (args) => {
   try {
