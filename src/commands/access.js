@@ -42,7 +42,11 @@ const access = (args) => {
         stagehandWarn(`Adding access for user ${id} for ${stackName}`);
 
         wrapExecCmd(putBucketAcl(bucket, [...ids, id]))
-          .then(output => stagehandSuccess('added', `Access for user ${id} for ${stackName}:`))
+          .then(output => {
+            stagehandSuccess('added', `Access for user ${id} for ${stackName}:`);
+            const addCmd = `stagehand add --bucket ${bucket}`;
+            stagehandSuccess(addCmd, 'Copy this command and pass to user to add stagehand stack locally:');
+          })
           .catch(err => stagehandErr(`Invalid id provided`));
       // Display users with access
       } else if (accessCommands.includes('view')) {
