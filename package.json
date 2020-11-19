@@ -1,6 +1,6 @@
 {
   "name": "stagehand-framework",
-  "version": "1.0.19--beta",
+  "version": "1.0.20--beta",
   "description": "#TODO",
   "homepage": "https://github.com/stagehand-framework/stagehand#readme",
   "main": "index.js",
@@ -36,6 +36,7 @@
   "preferGlobal": true,
   "dependencies": {
     "axios": "^0.21.0",
+    "moment": "^2.29.1",
     "readline-sync": "^1.4.10",
     "tweetsodium": "^0.0.5"
   }
