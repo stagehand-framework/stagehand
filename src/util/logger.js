@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 const escape = "\x1b";
 const reset = "\x1b[0m";
 const red = "[31m";

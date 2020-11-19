@@ -1,4 +1,6 @@
 const fs = require("fs");
+const moment = require("moment");
+
 const { wrapExecCmd } = require("./wrapExecCmd");
 const {
   githubFolderPath,
@@ -30,17 +32,11 @@ const createWorkflowDir = () => {
 };
 
 const copyGithubActions = (ssg) => {
-  fs.copyFileSync(
-    frameworkCreateReviewAppPath(ssg),
-    userCreateReviewAppPath,
-  );
-  
+  fs.copyFileSync(frameworkCreateReviewAppPath(ssg), userCreateReviewAppPath);
+
   stagehandSuccess("created", "Create review app Github action: ");
 
-  fs.copyFileSync(
-    frameworkRemoveReviewAppPath(ssg),
-    userRemoveReviewAppPath,
-  );
+  fs.copyFileSync(frameworkRemoveReviewAppPath(ssg), userRemoveReviewAppPath);
 
   stagehandSuccess("created", "Remove review app Github action: ");
 };
@@ -83,24 +79,38 @@ const writeToDataFile = (data) => {
   fs.writeFileSync(dataPath, JSON.stringify(data));
 };
 
+const addToken = () => {
+  const github_access_token = readlineSync.question(
+    `Please provide a valid github access token (https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token)
+    Only permission for access token needed is repo.
+    Enter token: `
+  );
+
+  writeToConfigFile({ github_access_token: github_access_token });
+  stagehandSuccess("saved", "Stagehand configuration: ");
+};
+
 const createConfigFile = () => {
   createFolder(dataFolderPath);
 
   if (!fs.existsSync(configPath)) {
-    const github_access_token = readlineSync.question(
-      `Please provide the github access token (https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token)
-      Only permission for access token needed is repo.
-      Enter token: `
-    );
-
-    writeToConfigFile({ github_access_token: github_access_token });
-    stagehandSuccess("saved", "Stagehand configuration: ");
+    addToken();
   } else {
     let github_access_token = readConfigFile().github_access_token;
+
     stagehandSuccess(
       github_access_token,
-      `Stagehand is already configured with token: `
+      `Stagehand is already configured with this token: `
     );
+
+    const input = readlineSync.question(
+      "Would you like to replace this token with a new one? (N/Y)"
+    );
+    if (input.toUpperCase() === "Y") {
+      addToken();
+    } else {
+      stagehandSuccess("not updated", "Stagehand configuration: ");
+    }
   }
 };
 
@@ -113,7 +123,9 @@ const writeToConfigFile = (config) => {
   fs.writeFileSync(configPath, JSON.stringify(config));
 };
 
-const writeToLogFile = (data) => {
+const writeToLogFile = (command, args) => {
+  const timestamp = moment().format("MMMM Do YYYY, h:mm:ss a");
+  const data = `${timestamp} > stagehand ${[command].concat(args).join(" ")}`;
   fs.appendFileSync(logPath, `${data}\n`);
 };
 
