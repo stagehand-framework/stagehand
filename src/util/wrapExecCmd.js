@@ -5,12 +5,12 @@ const wrapExecCmd = (cmd) => {
   return new Promise((resolve, reject) => {
     exec(cmd, (error, stdout, stderr) => {
       if (error) {
-        reject(stagehandErr(error));
+        reject(error);
         return;
       }
 
       if (stderr) {
-        reject(stagehandErr(stderr));
+        reject(stderr);
         return;
       }
 
