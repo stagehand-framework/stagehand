@@ -1,4 +1,9 @@
-const { stagehandErr, stagehandLog, stagehandWarn, stagehandSuccess } = require("../util/logger");
+const {
+  stagehandErr,
+  stagehandLog,
+  stagehandWarn,
+  stagehandSuccess,
+} = require("../util/logger");
 const readlineSync = require("readline-sync");
 const {
   readDataFile,
@@ -33,22 +38,22 @@ const deleteStackResources = (stackName) => {
   const emptyCmd = emptyBucket(bucketName);
   const repo_path = userApps[stackName].repo_path;
 
-  stagehandWarn('Emptying S3 bucket...');
+  stagehandWarn("Emptying S3 bucket...");
 
   wrapExecCmd(emptyCmd).then((_) => {
-    stagehandSuccess('S3 Bucket emptied');
-    stagehandWarn('Removing AWS stack infrastructure...');
+    stagehandSuccess("S3 Bucket emptied");
+    stagehandWarn("Removing AWS stack infrastructure...");
 
     wrapExecCmd(deleteCmd).then((_) => {
-      stagehandSuccess('AWS stack infrastructure removed');
+      stagehandSuccess("AWS stack infrastructure removed");
 
-      stagehandWarn('Deleting GitHub actions...');
+      stagehandWarn("Deleting GitHub actions...");
       deleteGithubActions(repo_path);
-      stagehandSuccess('GitHub actions deleted.');
+      stagehandSuccess("GitHub actions deleted.");
 
-      stagehandWarn('Removing stack data...');
+      stagehandWarn("Removing stack data...");
       deleteAppFromDataFile(stackName);
-      stagehandSuccess('Stack data Removed');
+      stagehandSuccess("Stack data Removed");
     });
   });
 };
@@ -56,9 +61,13 @@ const deleteStackResources = (stackName) => {
 const destroy = async (args) => {
   try {
     const stackName = args.stackName;
-    if (!stackName) return stagehandWarn('Please provide a stackName: "stagehand destroy --stackName <name>"');
-    if (!userApps[stackName]) return stagehandWarn(`No stack with name ${stackName} found`);
-    
+    if (!stackName)
+      return stagehandWarn(
+        'Please provide a stackName: "stagehand destroy --stackName <name>"'
+      );
+    if (!userApps[stackName])
+      return stagehandWarn(`No stack with name ${stackName} found`);
+
     if (validateDestroy(stackName)) {
       deleteStackResources(stackName);
       deleteGithubSecrets();
