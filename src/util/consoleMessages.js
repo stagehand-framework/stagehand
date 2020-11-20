@@ -2,7 +2,7 @@ const { stagehandLog, stagehandSuccess } = require("./logger");
 
 // ******** help Command ********
 const builds = ["next", "hugo", "gatsby", "react"];
-const commands = ["help", "init", "list", "destroy"];
+const commands = ["help", "init", "list", "destroy", "access", "add", "getId"];
 
 const initHelp = `
 usage: stagehand init --build buildOption [--stackName name]
@@ -38,6 +38,50 @@ Make sure to push changes to your repo so the actions won't be triggered on GitH
 Example: stagehand destroy --stackName myName 
 `;
 
+const accessHelp = `
+usage: stagehand access --[add|view|remove|] --stackName <name> --id <id>
+
+This will add to, remove from, or view the access control of a stagehand app.
+
+For adding:
+- First the user you want to add has to provide their AWS canonical id (see stagehand help --getId).
+- Then when you run the following command with their id, they will have access to the app's S3 bucket.
+- This will allow the user to add this app to their own set of apps (see stagehand help --add).
+For removing:
+- The same rules apply as adding. You can use the canonical id to remove a user.
+- However you can also remove based on a username (usually up to the @ in the user's email).
+For viewing:
+- This will output all users who have access to a specified stagehand app.
+- Note the usernames are provided (hence making it easier to determine who to remove).
+
+Example: stagehand access --add --stackName stackName --id 1234567890
+Example: stagehand access --remove --stackName stackName --id 1234567890
+Example: stagehand access --remove --stackName stackName --userName john.smith
+Example: stagehand access --view --stackName stackName
+`;
+
+const addHelp = `
+usage: stagehand add --bucket <bucket>
+
+This will add an existing stagehand app to your data file.
+A S3 bucket name will need to be provided by the owner of the stagehand app.
+Note that the owner will need to be give you permission to access this app (see stagehand help --access).
+For them to do this, you should provide them your AWS canonical id (see stagehand help --getId).
+Once this is done, you should be able to run commands with that stagehand app. 
+
+Example: stagehand add --bucket bucketName
+`;
+
+const getIdHelp = `
+usage: stagehand getId
+
+This will return your AWS canonical id which serves as your unique identifier.
+A valid AWS account will auto create this.
+This id can be provided to another user of stagehand so they can add you to their application (see stagehand help --access).
+
+Example: stagehand getId
+`;
+
 const noCommandHelp = `
 usage: stagehand <command> [parameters, ...]
 
@@ -53,6 +97,9 @@ const helpLogs = {
   list: listHelp,
   init: initHelp,
   help: noCommandHelp,
+  access: accessHelp,
+  add: addHelp,
+  getId: getIdHelp,
 };
 
 // ******** init Command ********
@@ -79,7 +126,7 @@ const displayListMessage = (title, list) => {
   list.forEach((entry, idx) => {
     if (isDomainsList) {
       currentMatch = entry.match(/\.net\/[^\/]+/)[0];
-      if (currentMatch !== previousMatch && idx !== 0) console.log('');
+      if (currentMatch !== previousMatch && idx !== 0) console.log("");
       stagehandSuccess(`${entry}`, "\t---");
       previousMatch = currentMatch;
     } else {
@@ -87,7 +134,7 @@ const displayListMessage = (title, list) => {
     }
   });
 
-  stagehandLog("\t---------------------------\n")
+  stagehandLog("\t---------------------------\n");
 };
 
 const noAppFoundMessage = (appName) =>
