@@ -26,6 +26,9 @@ const validateDestroy = (stackName) => {
 };
 
 const deleteAppFromDataFile = (stackName) => {
+  userApps["to_delete"] ||= [];
+  userApps["to_delete"].push(userApps[stackName]["viewer_request_lambda"]);
+  userApps["to_delete"].push(userApps[stackName]["origin_request_lambda"]);
   delete userApps[stackName];
   writeToDataFile(userApps);
 };
@@ -60,7 +63,7 @@ const deleteData = (stackName) => {
   stagehandWarn("Removing stack data locally...");
   deleteAppFromDataFile(stackName);
   stagehandSuccess("removed", " Stack data:");
-}
+};
 
 const destroy = async (args) => {
   try {
@@ -75,7 +78,7 @@ const destroy = async (args) => {
 
     if (validateDestroy(stackName)) {
       if (stack.notOwnStack) return deleteData(stackName);
-      
+
       deleteStackResources(stackName);
       deleteGithubSecrets();
     } else {

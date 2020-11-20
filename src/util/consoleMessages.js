@@ -102,6 +102,14 @@ const helpLogs = {
   getId: getIdHelp,
 };
 
+const lambdaDeleteErrorMessage = (lambda) => {
+  return `
+The lambda ${lambda} failed to delete. 
+Please ensure the related stack has finished deleting first.
+Once this is done, please wait 30 minutes for the replicated function to fully be removed from cloudfront.
+Then run stagehand cleanup again.`;
+};
+
 // ******** init Command ********
 const stackOutputMessage = (outputs) => {
   return `Put these values into your Github Repository Secrets:
@@ -129,7 +137,7 @@ const displayListMessage = (title, list) => {
       if (currentMatch !== previousMatch && idx !== 0) console.log("");
       stagehandSuccess(`${entry}`, "\t---");
       previousMatch = currentMatch;
-    } else {
+    } else if (entry !== "to_delete") {
       stagehandSuccess(`${entry}`, "\t---");
     }
   });
@@ -144,5 +152,6 @@ module.exports = {
   stackOutputMessage,
   displayListMessage,
   noAppFoundMessage,
+  lambdaDeleteErrorMessage,
   helpLogs,
 };

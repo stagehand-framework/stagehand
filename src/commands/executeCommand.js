@@ -5,6 +5,7 @@ const { destroy } = require("./destroy");
 const { access } = require("./access");
 const { getId } = require("./getId");
 const { add } = require("./add");
+const { cleanup } = require("./cleanup");
 const { helpLogs } = require("../util/consoleMessages");
 
 const { stagehandErr, stagehandLog, stagehandHelp } = require("../util/logger");
@@ -24,6 +25,8 @@ module.exports = async function executeCommand(command, args) {
     add(args);
   } else if (command === "getId") {
     getId(args);
+  } else if (command === "cleanup") {
+    cleanup(args);
   } else {
     if (!command) stagehandErr(`Please provide a command`);
     if (command) stagehandErr(`Command: ${command} is not valid.`);
