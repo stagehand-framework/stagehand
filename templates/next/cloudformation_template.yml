@@ -176,27 +176,27 @@ Resources:
       FunctionName: !Ref OriginRequestLambda
   # Create an IAM user with Access Keys to access S3 and CloudFront
   PublishUser:
-    Type: 'AWS::IAM::User'
+    Type: "AWS::IAM::User"
     Properties:
       Policies:
-        - PolicyName: !Sub 'publish-to-${S3Bucket}'
+        - PolicyName: !Sub "publish-to-${S3Bucket}"
           PolicyDocument:
             Statement:
-            - Action: 's3:*'
-              Effect: Allow
-              Resource:
-              - !Sub 'arn:aws:s3:::${S3Bucket}'
-              - !Sub 'arn:aws:s3:::${S3Bucket}/*'
-        - PolicyName: 'give-access-to-cloudfront'
+              - Action: "s3:*"
+                Effect: Allow
+                Resource:
+                  - !Sub "arn:aws:s3:::${S3Bucket}"
+                  - !Sub "arn:aws:s3:::${S3Bucket}/*"
+        - PolicyName: "give-access-to-cloudfront"
           PolicyDocument:
             Statement:
-            - Action: "cloudfront:CreateInvalidation"
-              Effect: Allow
-              Resource: 
-                - !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
-                - !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}/*'
+              - Action: "cloudfront:CreateInvalidation"
+                Effect: Allow
+                Resource:
+                  - !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+                  - !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}/*"
   PublishCredentials:
-    Type: 'AWS::IAM::AccessKey'
+    Type: "AWS::IAM::AccessKey"
     Properties:
       UserName: !Ref PublishUser
 Outputs:
@@ -204,10 +204,10 @@ Outputs:
     Description: "S3 Bucket Name"
     Value: !Ref S3Bucket
   AccessKeyId:
-    Description: 'Stack Access Key'
+    Description: "Stack Access Key"
     Value: !Ref PublishCredentials
   AccessKeySecret:
-    Description: 'Stack Secret Key'
+    Description: "Stack Secret Key"
     Value: !GetAtt PublishCredentials.SecretAccessKey
   DistributionId:
     Description: "CloudFront Distribution ID"
@@ -218,3 +218,9 @@ Outputs:
   Region:
     Description: "AWS Region"
     Value: !Ref AWS::Region
+  ViewerRequestLambda:
+    Description: "Viewer Request Lambda"
+    Value: !Ref ViewerRequestLambda
+  OriginRequestLambda:
+    Description: "Viewer Request Lambda"
+    Value: !Ref OriginRequestLambda

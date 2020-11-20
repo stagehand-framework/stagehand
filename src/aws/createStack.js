@@ -4,4 +4,4 @@ const createStack = (templatePath, stackName) => {
 
 module.exports = {
   createStack,
-}
+};

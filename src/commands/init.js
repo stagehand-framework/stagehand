@@ -15,7 +15,12 @@ const {
 } = require("../util/fs");
 const { startSpinner, stopSpinner } = require("../util/spinner");
 
-const { stagehandErr, stagehandLog, stagehandSuccess, stagehandWarn } = require("../util/logger");
+const {
+  stagehandErr,
+  stagehandLog,
+  stagehandSuccess,
+  stagehandWarn,
+} = require("../util/logger");
 const { getTemplatePath } = require("../util/paths");
 const { parseStackOutputJSON } = require("../util/parseAwsOutputs");
 const { stackOutputMessage } = require("../util/consoleMessages");
@@ -27,28 +32,35 @@ const createStagehandApp = (args) => {
   const templatePath = getTemplatePath(args.build, "cfStack");
   const cmd = createStack(templatePath, args.stackName);
 
-  stagehandWarn(`Provisioning AWS infrastructure. This may take a few minutes\n Grab a coffee while you wait`);
+  stagehandWarn(
+    `Provisioning AWS infrastructure. This may take a few minutes\n Grab a coffee while you wait`
+  );
   const spinner = startSpinner();
 
   wrapExecCmd(cmd)
     .then((_) => {
       stopSpinner(spinner);
-      stagehandSuccess('created', 'AWS infrastructure:');
+      stagehandSuccess("created", "AWS infrastructure:");
 
       const cmd = getStackOutputs(args.stackName);
       wrapExecCmd(cmd)
         .then((output) => {
           const stackOutput = parseStackOutputJSON(output);
-          addGithubSecrets(stackOutput);
 
           addAppToData(args.stackName, stackOutput);
+          delete stackOutput["ViewerRequestLambda"];
+          delete stackOutput["OriginRequestLambda"];
+          addGithubSecrets(stackOutput);
+
           const path = createDomainFile(stackOutput["Domain"]);
 
           wrapExecCmd(addDomainFileToS3(path, stackOutput["BucketName"]))
-            .then(_ => stagehandSuccess("added", "S3 domain file:"))
-            .catch(err => stagehandErr("Could not add domain file"));
-        }).catch(err => stagehandErr(err));
-    }).catch(err => {
+            .then((_) => stagehandSuccess("added", "S3 domain file:"))
+            .catch((err) => stagehandErr("Could not add domain file"));
+        })
+        .catch((err) => stagehandErr(err));
+    })
+    .catch((err) => {
       stopSpinner(spinner);
       stagehandErr(err);
     });
@@ -62,6 +74,8 @@ const addAppToData = (name, info) => {
     region: info["Region"],
     id: info["DistributionId"],
     repo_path: process.cwd(),
+    viewer_request_lambda: info["ViewerRequestLambda"],
+    origin_request_lambda: info["OriginRequestLambda"],
   };
 
   writeToDataFile({ ...userApps, [name]: appInfo });
@@ -90,8 +104,8 @@ const validateBuild = (args) => {
 
 const setUpS3Bucket = (domain) => {
   createDomainFile(domain);
-  addDomain
-}
+  addDomain;
+};
 
 const init = async (args) => {
   try {
