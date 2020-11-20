@@ -82,6 +82,18 @@ This id can be provided to another user of stagehand so they can add you to thei
 Example: stagehand getId
 `;
 
+const cleanupHelp = `
+usage: stagehand cleanup
+
+This will remove all persistent lambdas from previously destroyed stagehand apps.
+Lambdas cannot be deleted until all instances of the lambda across cloudfront have been deleted.
+Due to the long wait time required for this, the actual destroy command will not remove the lambda.
+Instead, destroy will make the lambda ready for cleanup by this command.
+Once you have waited at least 30 minutes post destruction, this cleanup command can be run.
+
+Example: stagehand cleanup
+`;
+
 const noCommandHelp = `
 usage: stagehand <command> [parameters, ...]
 
@@ -100,6 +112,7 @@ const helpLogs = {
   access: accessHelp,
   add: addHelp,
   getId: getIdHelp,
+  cleanup: cleanupHelp,
 };
 
 const lambdaDeleteErrorMessage = (lambda) => {

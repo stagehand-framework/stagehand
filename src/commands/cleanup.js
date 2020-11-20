@@ -20,6 +20,7 @@ const cleanup = (args) => {
         writeToDataFile(userApps);
       })
       .catch((error) => {
+        console.log(error);
         stagehandErr(lambdaDeleteErrorMessage(lambda));
       });
   });
