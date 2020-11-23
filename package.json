@@ -31,12 +31,14 @@
     "url": "https://github.com/stagehand-framework/stagehand/issues"
   },
   "bin": {
-    "stagehand": "bin/cli.js"
+    "stagehand": "src/commands/execute.js"
   },
   "preferGlobal": true,
   "dependencies": {
     "axios": "^0.21.0",
+    "commander": "^6.2.0",
     "moment": "^2.29.1",
+    "prompts": "^2.4.0",
     "readline-sync": "^1.4.10",
     "tweetsodium": "^0.0.5"
   }

@@ -1,5 +1,6 @@
-const { getAppPathsForS3Bucket } = require("../aws/getBucketObjects");
+const prompts = require("prompts");
 
+const { getAppPathsForS3Bucket } = require("../aws/getBucketObjects");
 const { stagehandErr, stagehandLog, stagehandWarn } = require("../util/logger");
 const { readDataFile } = require("../util/fs");
 const { wrapExecCmd } = require("../util/wrapExecCmd");
@@ -18,15 +19,26 @@ async function list(args) {
   const appInfo = userApps[appName];
 
   // List All Apps
-  if (Object.keys(args).length === 0) {
+  if (appName === undefined) {
     const stackNames = Object.keys(userApps);
+    stackNames.splice(stackNames.indexOf("to_delete"), 1);
 
     if (stackNames.length === 0) {
       stagehandWarn(
         `No stagehand apps have been created or added\n Start with "stagehand help --init"`
       );
     } else {
-      displayListMessage("List of Current Stagehand Apps", stackNames);
+      const obj = {
+        type: "select",
+        name: "stackNames",
+        message: "Pick a stagehand app to see more details on it.",
+        choices: stackNames,
+        initial: 1,
+      };
+      console.log(stackNames);
+      const result = await prompts(obj);
+      console.log(result);
+      // displayListMessage("List of Current Stagehand Apps", stackNames);
     }
 
     // List Domains for App
@@ -40,8 +52,8 @@ async function list(args) {
         );
       } else {
         const domains = parseReviewAppPaths(output, appInfo.domain);
-
-        displayListMessage(appName, domains);
+        console.log(domains);
+        //displayListMessage(appName, domains);
       }
     });
 
