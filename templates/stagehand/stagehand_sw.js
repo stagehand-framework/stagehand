@@ -12,6 +12,10 @@ caches.keys().then(function (names) {
 
 let basePath;
 
+self.addEventListener('message', (event) => {
+  if (event.data.resetBasepath) basePath = null;
+});
+
 const handleRequest = async event => {
   console.log(event);
 

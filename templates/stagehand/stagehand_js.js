@@ -2,7 +2,7 @@ window.addEventListener("DOMContentLoaded", function (e) {
   console.log(e);
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
-      .register("https://d3t33jqvgjin33.cloudfront.net/stagehand_sw.js")
+      .register("https://STAGEHAND_PLACEHOLDER/stagehand_sw.js")
       .catch(err => console.error("Service worker registration failed", err));
 
     const iframe = document.querySelector("iframe");
@@ -11,6 +11,8 @@ window.addEventListener("DOMContentLoaded", function (e) {
     
     let iframePolling;
     let iframePath;
+
+    navigator.serviceWorker.controller.postMessage({ resetBasepath: true });
 
     const polliFrame = () => {
       return setInterval(() => {
@@ -36,18 +38,19 @@ window.addEventListener("DOMContentLoaded", function (e) {
 
     console.log('change location: ', basepath + (path || 'index') + '.html')
     if (path && path[0] === '/') path = path.slice(1);
-
     iframe.src = basepath + (path || "index") + ".html";
     iframePolling = polliFrame();
 
     window.addEventListener('popstate', function(e) {
+      console.log(e);
       clearInterval(iframePolling);
       const newPath = window.location.hash.slice(1) || 'index';
-
+      // const newPath = e.target.location.hash.slice(1) || 'index';
       console.log(basepath + newPath + '.html')
       iframe.src = basepath + newPath + '.html';
 
       iframePolling = polliFrame();
+
     });
 
     console.log(navigator.serviceWorker);

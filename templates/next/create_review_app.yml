@@ -32,8 +32,8 @@ jobs:
         run: npm install
       - name: Clean out directory
         run: rm -rf out
-      - name: Change basePath
-        run: sed -i 's/\( *basePath:\).*/\1 "\/${{ github.head_ref }}\/${{ github.sha }}",/' next.config.js
+      # - name: Change basePath
+        # run: sed -i 's/\( *basePath:\).*/\1 "\/${{ github.head_ref }}\/${{ github.sha }}",/' next.config.js
 ####### Uncomment below to add env variables to use during build process #######
 ####### Add \n\ to the end of each secret to start a new line #######
 ####### EXCEPT DO NOT add to the end of the last secret #######
@@ -45,8 +45,13 @@ jobs:
         run: npm run-script build
       - name: Inject routes into stagehand files
         run: |
-          sed -i 's/STAGEHAND_PLACEHOLDER/${{ env.AWS_CF_DOMAIN }}' stagehand/stagehand_js.js
-          sed -i 's/STAGEHAND_PLACEHOLDER/${{ env.AWS_CF_DOMAIN }}/${{ github.head_ref }}\/${{ github.sha }}' stagehand/stagehand_index.html
+          sed -i 's/STAGEHAND_PLACEHOLDER/${{ env.AWS_CF_DOMAIN }}/' stagehand/stagehand_js.js
+          sed -i 's/STAGEHAND_PLACEHOLDER/${{ env.AWS_CF_DOMAIN }}\/${{ github.head_ref }}\/${{ github.sha }}/' stagehand/stagehand_index.html
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date)"
+      - name: Inject info to stagehand banner
+        run: sed -i 's/STAGEHAND_BANNER/Stagehand Review App created ${{ github.repository }} -- ${{ steps.date.outputs.date }} -- PR on ${{ github.base_ref }} for ${{ github.head_ref }} branch/' stagehand/stagehand_index.html
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
