@@ -15,10 +15,6 @@ window.addEventListener("DOMContentLoaded", function (e) {
     let iframePolling;
     let iframePath;
 
-    if (navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({ resetBasepath: true });
-    }
-
     const polliFrame = () => {
       return setInterval(() => {
         iframePath = (
