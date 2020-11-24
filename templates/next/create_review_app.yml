@@ -47,11 +47,15 @@ jobs:
         run: |
           sed -i 's/STAGEHAND_PLACEHOLDER/${{ env.AWS_CF_DOMAIN }}/' stagehand/stagehand_js.js
           sed -i 's/STAGEHAND_PLACEHOLDER/${{ env.AWS_CF_DOMAIN }}\/${{ github.head_ref }}\/${{ github.sha }}/' stagehand/stagehand_index.html
-      - name: Get current date
+      - name: Set date
         id: date
         run: echo "::set-output name=date::$(date)"
-      - name: Inject info to stagehand banner
-        run: sed -i 's/STAGEHAND_BANNER/Stagehand Review App created ${{ github.repository }} -- ${{ steps.date.outputs.date }} -- PR on ${{ github.base_ref }} for ${{ github.head_ref }} branch/' stagehand/stagehand_index.html
+      - name: Inject date info to stagehand banner
+        run: sed -i 's/STAGEHAND_CREATED/Stagehand app created on ${{steps.date.outputs.date}}/' stagehand/stagehand_index.html
+      - name: Inject branch info to stagehand banner
+        run: sed -i 's/STAGEHAND_BRANCH/PR for branch ${{github.base_ref}}/' stagehand/stagehand_index.html
+      - name: Inject repo info to stagehand banner
+        run: sed -i 's/STAGEHAND_REPO/${{ github.repository_owner }}/' stagehand/stagehand_index.html
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}

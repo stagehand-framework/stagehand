@@ -45,8 +45,8 @@ const handleRequest = async event => {
   console.log('basePath:', basePath);
   // check if the domains are both for same cloudfront
   // If they are we need to make sure it has basePath prepended
-  if ((referrerDomain && referrerDomain[0]) === (urlDomain && urlDomain[0])) {
-    let urlPath = urlPathMatch[1] || '';
+  if ((referrerDomain && urlDomain) && (referrerDomain[0] === urlDomain[0])) {
+    let urlPath = urlPathMatch && urlPathMatch[1] || '';
     let req;
 
     if (urlPath.startsWith('/')) urlPath = urlPath.slice(1);
