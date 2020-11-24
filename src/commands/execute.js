@@ -17,25 +17,6 @@ program
   .command("list")
   .alias("l")
   .description("Lists stagehand application(s)")
-  .action(() => {
-    const questions = [
-      {
-        type: "text",
-        name: "choice",
-        message: "Do you want to see a specific app's info? (N/Y)",
-      },
-      {
-        type: (prev) => (prev.toUpperCase() === "Y" ? "text" : null),
-        name: "stackName",
-        message:
-          "Please specify the stack name of the app whose info you want.",
-      },
-    ];
-
-    (async () => {
-      const inputs = await prompts(questions);
-      list(inputs);
-    })();
-  });
+  .action(list);
 
 program.parse(process.argv);
