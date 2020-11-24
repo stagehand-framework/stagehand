@@ -1,3 +1,6 @@
+const isSPA = false;
+const pageRoutesServedFromIndex = true;
+
 window.addEventListener("DOMContentLoaded", function (e) {
   console.log(e);
   if ("serviceWorker" in navigator) {
@@ -15,7 +18,7 @@ window.addEventListener("DOMContentLoaded", function (e) {
     if (navigator.serviceWorker.controller) {
       navigator.serviceWorker.controller.postMessage({ resetBasepath: true });
     }
-    
+
     const polliFrame = () => {
       return setInterval(() => {
         iframePath = (
@@ -40,7 +43,17 @@ window.addEventListener("DOMContentLoaded", function (e) {
 
     console.log('change location: ', basepath + (path || 'index') + '.html')
     if (path && path[0] === '/') path = path.slice(1);
-    iframe.src = basepath + (path || "index") + ".html";
+    
+    if (isSPA) {
+      iframe.src = basepath + "index.html";
+    } else if (pageRoutesServedFromIndex) {
+      if (path && !path.endsWith("/")) path += "/";
+
+      iframe.src = basepath + (path || "") + "index.html";
+    } else {
+      iframe.src = basepath + (path || "index") + ".html";
+    }
+
     iframePolling = polliFrame();
 
     window.addEventListener('popstate', function(e) {
@@ -49,6 +62,18 @@ window.addEventListener("DOMContentLoaded", function (e) {
       const newPath = window.location.hash.slice(1) || 'index';
       // const newPath = e.target.location.hash.slice(1) || 'index';
       console.log(basepath + newPath + '.html')
+
+      if (isSPA) {
+        iframe.src = basepath + "index.html";
+      } else if (pageRoutesServedFromIndex) {
+        if (!newPath.endsWith("/")) newPath += "/";
+        if (newPath === 'index/') newPath = '';
+
+        iframe.src = basepath + (newPath) + "index.html";
+      } else {
+        iframe.src = basepath + newPath + ".html";
+      }
+
       iframe.src = basepath + newPath + '.html';
 
       iframePolling = polliFrame();
