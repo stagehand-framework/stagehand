@@ -1,25 +1,22 @@
+const prompts = require("prompts");
+
 const { stagehandErr, stagehandHelp } = require("../util/logger");
-const { helpLogs } = require("../util/consoleMessages");
+const { helpLogs, commands } = require("../util/consoleMessages");
 
-const help = (args) => {
+async function help() {
   const availableCommands = Object.keys(helpLogs);
-  
-  const commandRequested = Object.keys(args)[0];
+
+  const question = {
+    type: "select",
+    name: "Help",
+    message: `What command would you like help for?`,
+    choices: commands,
+  };
+
+  const result = await prompts(question);
+  const commandRequested = commands[result["Help"]];
   const helpStr = helpLogs[commandRequested];
-
-// List All Commands
-  if (!commandRequested) {    
-    stagehandHelp(helpLogs.help);
-
-// List Help for Command
-  } else if (helpStr) {
-    stagehandHelp(helpStr);
-
-// Invalid Command
-  } else {
-    stagehandErr(`Unknown command ${commandRequested}`);
-    stagehandHelp(helpLogs.help);
-  }
+  stagehandHelp(helpStr);
 }
 
-module.exports = { help }
+module.exports = { help };

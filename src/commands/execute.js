@@ -12,6 +12,8 @@ const { program } = require("commander");
 const version = require("../../package.json").version;
 program.version(version).description("Stagehand Framework");
 
+// Init
+
 // List Command
 program
   .command("list")
@@ -19,4 +21,10 @@ program
   .description("Lists stagehand application(s)")
   .action(list);
 
+// Help
+program
+  .command("help")
+  .alias("h")
+  .description("Lists stagehand application(s)")
+  .action(help);
 program.parse(process.argv);
