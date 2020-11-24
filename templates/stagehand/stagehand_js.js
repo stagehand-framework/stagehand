@@ -10,7 +10,7 @@ window.addEventListener("DOMContentLoaded", function (e) {
 
     const iframe = document.querySelector("iframe");
     const basepath = window.location.pathname;
-    const path = window.location.href.split("#")[1];
+    let path = window.location.href.split("#")[1];
     
     let iframePolling;
     let iframePath;
@@ -48,6 +48,7 @@ window.addEventListener("DOMContentLoaded", function (e) {
       iframe.src = basepath + "index.html";
     } else if (pageRoutesServedFromIndex) {
       if (path && !path.endsWith("/")) path += "/";
+      if (path === "index/") path = "";
 
       iframe.src = basepath + (path || "") + "index.html";
     } else {
@@ -73,8 +74,6 @@ window.addEventListener("DOMContentLoaded", function (e) {
       } else {
         iframe.src = basepath + newPath + ".html";
       }
-
-      iframe.src = basepath + newPath + '.html';
 
       iframePolling = polliFrame();
 
