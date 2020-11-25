@@ -7,6 +7,7 @@ const {
   workflowFolderPath,
   userCreateReviewAppPath,
   userRemoveReviewAppPath,
+  userStagehandFolderPath,
   dataPath,
   configPath,
   logPath,
@@ -15,6 +16,7 @@ const {
   dataFolderPath,
   frameworkRemoveReviewAppPath,
   frameworkCreateReviewAppPath,
+  frameworkStagehandFolderPath,
 } = require("./paths");
 const { stagehandErr, stagehandLog, stagehandSuccess } = require("./logger");
 
@@ -32,15 +34,25 @@ const createWorkflowDir = () => {
   createFolder(workflowFolderPath);
 };
 
-const copyGithubActions = (ssg) => {
-  fs.copyFileSync(frameworkCreateReviewAppPath(ssg), userCreateReviewAppPath);
+const copyGithubActions = () => {
+  fs.copyFileSync(frameworkCreateReviewAppPath, userCreateReviewAppPath);
 
   stagehandSuccess("created", "Create review app Github action: ");
 
-  fs.copyFileSync(frameworkRemoveReviewAppPath(ssg), userRemoveReviewAppPath);
+  fs.copyFileSync(frameworkRemoveReviewAppPath, userRemoveReviewAppPath);
 
   stagehandSuccess("created", "Remove review app Github action: ");
 };
+
+const injectBuildInfoToGithubActions = (info) => {
+  let createReviewAppFile = fs.readFileSync(userCreateReviewAppPath, 'utf8');
+
+  createReviewAppFile = createReviewAppFile.replace('STAGEHAND_SOURCE_DIR', info["buildPath"])
+  createReviewAppFile = createReviewAppFile.replace('STAGEHAND_SETUP_CMD', info["setupCmd"])
+  createReviewAppFile = createReviewAppFile.replace('STAGEHAND_BUILD_CMD', info["buildCmd"])
+
+  fs.writeFileSync(userCreateReviewAppPath, createReviewAppFile);
+}
 
 const deleteGithubActions = (repo_path) => {
   fs.unlinkSync(repo_path + "/.github/workflows/create_review_app.yml");
@@ -54,6 +66,23 @@ const deleteGithubActions = (repo_path) => {
     fs.rmdirSync(repo_path + "/.github");
   }
 };
+
+const copyStagehandClientFilesToRepo = (routeTypeInfo) => {
+  createFolder(userStagehandFolderPath);
+
+  ['/stagehand.html', '/stagehand.js', '/stagehand_sw.js'].forEach(file => {
+    fs.copyFileSync(frameworkStagehandFolderPath + file, userStagehandFolderPath + file);
+  });
+
+  let stagehandJs = fs.readFileSync(userStagehandFolderPath + '/stagehand.js', 'utf8');
+
+  const isSPA = routeTypeInfo["STAGEHAND_IS_SPA"] ? 'true' : 'false';
+  const isIndexRoutes = routeTypeInfo["STAGEHAND_INDEX_ROUTES"] ? 'true' : 'false';
+  stagehandJs = stagehandJs.replace('STAGEHAND_IS_SPA', isSPA);
+  stagehandJs = stagehandJs.replace('STAGEHAND_INDEX_ROUTES', isIndexRoutes);
+  console.log(routeTypeInfo);
+  fs.writeFileSync(userStagehandFolderPath + '/stagehand.js', stagehandJs);
+}
 
 const isRepo = () => {
   if (!fs.existsSync(gitPath)) return false;
@@ -73,7 +102,7 @@ const createDataFile = () => {
 
 const readDataFile = () => {
   const rawUserAppsData = fs.readFileSync(dataPath);
-  return JSON.parse(rawUserAppsData);
+  return rawUserAppsData && JSON.parse(rawUserAppsData);
 };
 
 const writeToDataFile = (data) => {
@@ -150,4 +179,6 @@ module.exports = {
   writeToLogFile,
   createDomainFile,
   deleteGithubActions,
+  injectBuildInfoToGithubActions,
+  copyStagehandClientFilesToRepo,
 };

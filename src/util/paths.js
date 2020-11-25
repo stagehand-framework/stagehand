@@ -12,6 +12,7 @@ const userRemoveReviewAppPath = path.join(
   process.cwd(),
   "/.github/workflows/remove_review_app.yml"
 );
+const userStagehandFolderPath = path.join(githubFolderPath, '/stagehand');
 
 const dataFolderPath = path.join(process.env.HOME, "/.stagehand");
 const dataPath = path.join(process.env.HOME, "/.stagehand/userApps.json");
@@ -21,22 +22,13 @@ const gitPath = path.join(process.cwd(), "/.git");
 
 const domainPath = (domain) => path.join(process.cwd(), `/${domain}`);
 
-const frameworkCreateReviewAppPath = (ssg) =>
-  path.join(rootFrameworkPath, `/templates/${ssg}/create_review_app.yml`);
-const frameworkRemoveReviewAppPath = (ssg) =>
-  path.join(rootFrameworkPath, `/templates/${ssg}/remove_review_app.yml`);
-
-const getTemplatePath = (ssg, fileType) => {
-  if (fileType === "cfStack") {
-    fileType = "cloudformation_template";
-  } else if (fileType === "create") {
-    fileType = "create_review_app";
-  } else if (fileType === "remove") {
-    fileType = "remove_review_app";
-  }
-
-  return path.join(rootFrameworkPath, `/templates/${ssg}/${fileType}.yml`);
-};
+const frameworkCreateReviewAppPath =
+  path.join(rootFrameworkPath, `/templates/create_review_app.yml`);
+const frameworkRemoveReviewAppPath =
+  path.join(rootFrameworkPath, `/templates/remove_review_app.yml`);
+const cloudformationTemplatePath = 
+  path.join(rootFrameworkPath, `/templates/cloudformation_template.yml`)
+const frameworkStagehandFolderPath = path.join(rootFrameworkPath, '/templates/stagehand');
 
 module.exports = {
   rootFrameworkPath,
@@ -44,6 +36,7 @@ module.exports = {
   workflowFolderPath,
   userCreateReviewAppPath,
   userRemoveReviewAppPath,
+  userStagehandFolderPath,
   dataPath,
   configPath,
   logPath,
@@ -52,5 +45,6 @@ module.exports = {
   domainPath,
   frameworkRemoveReviewAppPath,
   frameworkCreateReviewAppPath,
-  getTemplatePath,
+  cloudformationTemplatePath,
+  frameworkStagehandFolderPath,
 };

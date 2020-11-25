@@ -28,9 +28,9 @@ const validateDestroy = (stackName) => {
 };
 
 const deleteAppFromDataFile = (stackName) => {
-  userApps["to_delete"] ||= [];
-  userApps["to_delete"].push(userApps[stackName]["viewer_request_lambda"]);
-  userApps["to_delete"].push(userApps[stackName]["origin_request_lambda"]);
+  // userApps["to_delete"] ||= [];
+  // userApps["to_delete"].push(userApps[stackName]["viewer_request_lambda"]);
+  // userApps["to_delete"].push(userApps[stackName]["origin_request_lambda"]);
   delete userApps[stackName];
   writeToDataFile(userApps);
 };

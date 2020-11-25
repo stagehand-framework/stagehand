@@ -9,8 +9,9 @@ const startSpinner = () => {
   const spinners = ['=', '\\', '|', '/'];
 
   let idx = 0;
-  const line = '-'.repeat(30);
-
+  const terminalWidth = process.stdout.columns;
+  const line = '-'.repeat(terminalWidth);
+  
   return setInterval(() => {
     const linePos = idx % line.length;
     const spinner = spinners[idx % spinners.length];
@@ -28,6 +29,8 @@ const startSpinner = () => {
 
 const stopSpinner = (id) => {
   clearInterval(id);
+  const terminalWidth = process.stdout.columns;  
+  std.write(' '.repeat(terminalWidth));
   // Bring back cursor
   process.stdout.write("\x1B[?25h")
 }

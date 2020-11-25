@@ -1,3 +1,5 @@
+const prompts = require('prompts');
+
 const { getStackOutputs } = require("../aws/getStackOutputs");
 const { createStack } = require("../aws/createStack");
 const { addDomainFileToS3 } = require("../aws/addDomainFileToS3");
@@ -12,6 +14,8 @@ const {
   createConfigFile,
   createDomainFile,
   isRepo,
+  injectBuildInfoToGithubActions,
+  copyStagehandClientFilesToRepo,
 } = require("../util/fs");
 const { startSpinner, stopSpinner } = require("../util/spinner");
 
@@ -21,7 +25,7 @@ const {
   stagehandSuccess,
   stagehandWarn,
 } = require("../util/logger");
-const { getTemplatePath } = require("../util/paths");
+const { cloudformationTemplatePath } = require("../util/paths");
 const { parseStackOutputJSON } = require("../util/parseAwsOutputs");
 const { stackOutputMessage } = require("../util/consoleMessages");
 const {
@@ -29,11 +33,10 @@ const {
   validateGithubConnection,
 } = require("../util/addGithubSecrets");
 
-const BUILDS = ["gatsby", "next", "hugo", "react"];
+const createStagehandApp = async (stackName) => {
+  stackName = stackName.replace(/\s/g, '');
 
-const createStagehandApp = (args) => {
-  const templatePath = getTemplatePath(args.build, "cfStack");
-  const cmd = createStack(templatePath, args.stackName);
+  const cmd = createStack(cloudformationTemplatePath, stackName);
 
   stagehandWarn(
     `Provisioning AWS infrastructure. This may take a few minutes\n Grab a coffee while you wait`
@@ -45,14 +48,12 @@ const createStagehandApp = (args) => {
       stopSpinner(spinner);
       stagehandSuccess("created", "AWS infrastructure:");
 
-      const cmd = getStackOutputs(args.stackName);
-      wrapExecCmd(cmd)
+      const cmd = getStackOutputs(stackName);
+      wrapExecCmd(cmd, 'Could not retrieve stack outputs')
         .then((output) => {
           const stackOutput = parseStackOutputJSON(output);
 
-          addAppToData(args.stackName, stackOutput);
-          delete stackOutput["ViewerRequestLambda"];
-          delete stackOutput["OriginRequestLambda"];
+          addAppToData(stackName, stackOutput);
           addGithubSecrets(stackOutput);
 
           const path = createDomainFile(stackOutput["Domain"]);
@@ -77,37 +78,92 @@ const addAppToData = (name, info) => {
     region: info["Region"],
     id: info["DistributionId"],
     repo_path: process.cwd(),
-    viewer_request_lambda: info["ViewerRequestLambda"],
-    origin_request_lambda: info["OriginRequestLambda"],
   };
 
   writeToDataFile({ ...userApps, [name]: appInfo });
 };
 
-const validateStackName = (args) => {
-  if (!args["stackName"]) {
-    args["stackName"] = generateRandomStackName();
-    stagehandSuccess(args["stackName"], `Generating random stack name:`);
+const validateStackName = (name) => {
+  const userApps = readDataFile() || {};
+  const stackNames = Object.keys(userApps);
+
+  if (stackNames.includes(name)) {
+    return 'Name is taken already';
+  } else if (name.trim().length === 0) {
+    return 'Please provide a name';
   } else {
-    stagehandSuccess(args["stackName"], "Stack name:");
+    return true;
   }
 };
 
-const validateBuild = (args) => {
-  if (!BUILDS.includes(args["build"])) {
-    throw new Error(
-      `You have failed to provide a valid build type! Please use one of the following: ${BUILDS.join(
-        ", "
-      )}.`
-    );
-  } else {
-    stagehandSuccess(args["build"], "Creating Github action files for:");
-  }
-};
+const getBuildInfo = async () => {
+  let confirm;
+  let results;
+  let result;
 
-const setUpS3Bucket = (domain) => {
-  createDomainFile(domain);
-  addDomain;
+  const questions = [
+    {
+      type: "text",
+      name: "stackName",
+      message: `What do you want to name your Stagehand app?`,
+      validate: validateStackName,
+    },
+    {
+      type: "text",
+      name: "setupCmd",
+      message: `What is your app's setup command?\n (ex: npm install, brew install hugo)`,
+      validate: cmd => cmd.trim().length === 0 ? 'Please enter a setup command' : true,
+    },
+    {
+      type: "text",
+      name: "buildCmd",
+      message: `What is your app's build command?\n (ex: npm run-script build, hugo)`,
+      validate: cmd => cmd.trim().length === 0 ? 'Please enter a build command' : true,
+    },
+    {
+      type: "text",
+      name: "buildPath",
+      message: `What is the path of the static assets after build?\n (ex: public, out, build)`,
+      validate: cmd => cmd.trim().length === 0 ? 'Please enter a build path' : true,
+    },
+  ];
+
+  const confirmQuestion = {
+    type: 'confirm',
+    name: 'confirm',
+    message: 'Are these correct?',
+    initial: true
+  }
+
+  while (!confirm) {
+    results = await prompts(questions);
+    Object.keys(results).forEach(info => stagehandSuccess(results[info], `\t${info}: `));
+    
+    result = await prompts(confirmQuestion);
+    confirm = result["confirm"];
+  }
+  
+  return results;  
+}
+
+const getRoutingType = async () => {
+  const questions = [
+    {
+      type: "confirm",
+      name: "STAGEHAND_IS_SPA",
+      message: `Is your app a Single Page Application? (ex: React)`,
+      initial: true,
+    },
+    {
+      type: prev => prev ? null : "confirm",
+      name: "STAGEHAND_INDEX_ROUTES",
+      message: `Are all your static routes served from "path/index.html"?\n (as opposed to "path.html")`,
+      initial: true,
+    },
+  ];
+
+  const results = await prompts(questions);
+  return results;
 };
 
 const init = async (args) => {
@@ -115,15 +171,22 @@ const init = async (args) => {
     if (!isRepo()) {
       throw `Current directory is not a git repository or it is not tied to a GitHub Origin`;
     }
+
     validateGithubConnection();
     createConfigFile();
-    validateBuild(args);
-    validateStackName(args);
+
+    const buildInfo = await getBuildInfo();
+
     createWorkflowDir();
-    copyGithubActions(args.build);
+    copyGithubActions();
+    injectBuildInfoToGithubActions(buildInfo);
     createDataFile();
 
-    createStagehandApp(args);
+    const routingType = await getRoutingType();
+    copyStagehandClientFilesToRepo(routingType);
+
+    createStagehandApp(buildInfo["stackName"]);
+
   } catch (err) {
     stagehandErr(`Could not initialize app:\n${err}`);
   }

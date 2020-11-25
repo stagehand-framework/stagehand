@@ -13,6 +13,11 @@ const version = require("../../package.json").version;
 program.version(version).description("Stagehand Framework");
 
 // Init
+program
+  .command("init")
+  .alias("d=i")
+  .description("Create stagehand application")
+  .action(init);
 
 // List Command
 program
