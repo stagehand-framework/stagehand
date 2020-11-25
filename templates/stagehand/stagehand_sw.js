@@ -50,6 +50,7 @@ const handleRequest = async event => {
     let req;
 
     if (urlPath.startsWith('/')) urlPath = urlPath.slice(1);
+    if (urlPath.endsWith('/') || urlPath === '') urlPath += 'index';
     if (urlPath && !urlPath.includes('.')) urlPath += '.html';
 
     // if it already has basepath send req as is

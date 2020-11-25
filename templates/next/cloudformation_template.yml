@@ -62,11 +62,11 @@ Resources:
           MinTTL: 60 # in seconds
           TargetOriginId: s3origin
           ViewerProtocolPolicy: "allow-all"
-          # LambdaFunctionAssociations:
-          #   - EventType: viewer-request
-          #     LambdaFunctionARN: !Ref ViewerRequestLambdaVersion
-          #   - EventType: origin-request
-          #     LambdaFunctionARN: !Ref OriginRequestLambdaVersion
+          LambdaFunctionAssociations:
+            - EventType: viewer-request
+              LambdaFunctionARN: !Ref ViewerRequestLambdaVersion
+            - EventType: origin-request
+              LambdaFunctionARN: !Ref OriginRequestLambdaVersion
         Enabled: true
         HttpVersion: http2
         Origins:
@@ -75,105 +75,105 @@ Resources:
             CustomOriginConfig:
               OriginProtocolPolicy: http-only
         PriceClass: "PriceClass_All"
-  # ViewerRequestLambda:
-  #   Type: AWS::Lambda::Function
-  #   Properties:
-  #     Role: !GetAtt ViewerRequestLambdaRole.Arn
-  #     Runtime: nodejs12.x
-  #     Handler: index.handler
-  #     Code:
-  #       ZipFile: |
-  #         const headerName = 'x-original-referer';
-  #         exports.handler = (event, context, callback) => {
-  #           const request = event.Records[0].cf.request;
-  #           const endOfUri = request.uri.slice(-6);
-  #           if (!endOfUri.match(/\.(html|js|jsx|css)$/) && endOfUri.slice(-6).includes('.')) {
-  #             const referer = request.headers['referer'][0].value;
-  #             // Store request's `Referer` header as `X-Original-Referer`
-  #             // for further processing in `origin-request` event.
-  #             request.headers[headerName] = [{
-  #               key: headerName,
-  #               value: referer,
-  #             }];
-  #             console.log(request);
-  #             callback(null, request);
-  #           } else {
-  #             console.log(request);
-  #             callback(null, request);
-  #           }
-  #         };
-  # ViewerRequestLambdaRole:
-  #   Type: AWS::IAM::Role
-  #   Properties:
-  #     AssumeRolePolicyDocument:
-  #       Version: "2012-10-17"
-  #       Statement:
-  #         - Effect: Allow
-  #           Principal:
-  #             Service:
-  #               - lambda.amazonaws.com
-  #               - edgelambda.amazonaws.com
-  #           Action: sts:AssumeRole
-  #     ManagedPolicyArns:
-  #       - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-  # ViewerRequestLambdaVersion:
-  #   Type: "AWS::Lambda::Version"
-  #   Properties:
-  #     FunctionName: !Ref ViewerRequestLambda
-  # OriginRequestLambda:
-  #   Type: AWS::Lambda::Function
-  #   Properties:
-  #     Role: !GetAtt OriginRequestLambdaRole.Arn
-  #     Runtime: nodejs12.x
-  #     Handler: index.handler
-  #     Code:
-  #       ZipFile: |
-  #         const headerName = 'x-original-referer';
-  #         exports.handler = (event, context, callback) => {
-  #           const request = event.Records[0].cf.request;
-  #           if (request.headers[headerName]) {
-  #             // Read the contents of `X-Original-Referer` header, and split
-  #             // the domain into basepath.
-  #             const originalReferer = request.headers[headerName][0].value;
-  #             const basepath = originalReferer.split('cloudfront.net')[1];
-  #             // const uri = request.uri;
-  #             // Use basepath to build S3 path.
-  #             const path = basepath.match(/(\/[^\/]+){2}/)[0];
-  #             request.origin.custom.path = path;
-  #             console.log(request);
-  #             callback(null, request);
-  #           } else {
-  #             if (request.uri.split('/').length === 3) {
-  #               // if you navigate to root page and leave out the '/'
-  #               request.uri += '/index';
-  #             } else if (!request.uri.split('/')[3]) {
-  #               // if you navigate to root page and include the '/'
-  #               request.uri += 'index';
-  #             }
-  #             // include extension if it has 
-  #             if (!request.uri.includes('.')) request.uri += '.html';
-  #             console.log(request);
-  #             callback(null, request);
-  #           }
-  #         };
-  # OriginRequestLambdaRole:
-  #   Type: AWS::IAM::Role
-  #   Properties:
-  #     AssumeRolePolicyDocument:
-  #       Version: "2012-10-17"
-  #       Statement:
-  #         - Effect: Allow
-  #           Principal:
-  #             Service:
-  #               - lambda.amazonaws.com
-  #               - edgelambda.amazonaws.com
-  #           Action: sts:AssumeRole
-  #     ManagedPolicyArns:
-  #       - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-  # OriginRequestLambdaVersion:
-  #   Type: "AWS::Lambda::Version"
-  #   Properties:
-  #     FunctionName: !Ref OriginRequestLambda
+  ViewerRequestLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Role: !GetAtt ViewerRequestLambdaRole.Arn
+      Runtime: nodejs12.x
+      Handler: index.handler
+      Code:
+        ZipFile: |
+          const headerName = 'x-original-referer';
+          exports.handler = (event, context, callback) => {
+            const request = event.Records[0].cf.request;
+            const endOfUri = request.uri.slice(-6);
+            if (!endOfUri.match(/\.(html|js|jsx|css)$/) && endOfUri.slice(-6).includes('.')) {
+              const referer = request.headers['referer'][0].value;
+              // Store request's `Referer` header as `X-Original-Referer`
+              // for further processing in `origin-request` event.
+              request.headers[headerName] = [{
+                key: headerName,
+                value: referer,
+              }];
+              console.log(request);
+              callback(null, request);
+            } else {
+              console.log(request);
+              callback(null, request);
+            }
+          };
+  ViewerRequestLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - edgelambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+  ViewerRequestLambdaVersion:
+    Type: "AWS::Lambda::Version"
+    Properties:
+      FunctionName: !Ref ViewerRequestLambda
+  OriginRequestLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Role: !GetAtt OriginRequestLambdaRole.Arn
+      Runtime: nodejs12.x
+      Handler: index.handler
+      Code:
+        ZipFile: |
+          const headerName = 'x-original-referer';
+          exports.handler = (event, context, callback) => {
+            const request = event.Records[0].cf.request;
+            if (request.headers[headerName]) {
+              // Read the contents of `X-Original-Referer` header, and split
+              // the domain into basepath.
+              const originalReferer = request.headers[headerName][0].value;
+              const basepath = originalReferer.split('cloudfront.net')[1];
+              // const uri = request.uri;
+              // Use basepath to build S3 path.
+              const path = basepath.match(/(\/[^\/]+){2}/)[0];
+              request.origin.custom.path = path;
+              console.log(request);
+              callback(null, request);
+            } else {
+              if (request.uri.split('/').length === 3) {
+                // if you navigate to root page and leave out the '/'
+                request.uri += '/index';
+              } else if (!request.uri.split('/')[3]) {
+                // if you navigate to root page and include the '/'
+                request.uri += 'index';
+              }
+              // include extension if it has 
+              if (!request.uri.includes('.')) request.uri += '.html';
+              console.log(request);
+              callback(null, request);
+            }
+          };
+  OriginRequestLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - edgelambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+  OriginRequestLambdaVersion:
+    Type: "AWS::Lambda::Version"
+    Properties:
+      FunctionName: !Ref OriginRequestLambda
   # Create an IAM user with Access Keys to access S3 and CloudFront
   PublishUser:
     Type: 'AWS::IAM::User'

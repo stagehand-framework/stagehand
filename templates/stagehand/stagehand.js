@@ -1,5 +1,5 @@
-const isSPA = false;
-const pageRoutesServedFromIndex = true;
+const isSPA = STAGEHAND_IS_SPA;
+const allPageRoutesServedFromIndex = STAGEHAND_INDEX_ROUTES;
 
 window.addEventListener("DOMContentLoaded", function (e) {
   console.log(e);
@@ -10,7 +10,9 @@ window.addEventListener("DOMContentLoaded", function (e) {
 
     const iframe = document.querySelector("iframe");
     const basepath = window.location.pathname;
+    
     let path = window.location.href.split("#")[1];
+    if (path && path[0] === '/') path = path.slice(1);
     
     let iframePolling;
     let iframePath;
@@ -37,42 +39,35 @@ window.addEventListener("DOMContentLoaded", function (e) {
       }, 500);
     }
 
-    console.log('change location: ', basepath + (path || 'index') + '.html')
-    if (path && path[0] === '/') path = path.slice(1);
-    
-    if (isSPA) {
-      iframe.src = basepath + "index.html";
-    } else if (pageRoutesServedFromIndex) {
-      if (path && !path.endsWith("/")) path += "/";
-      if (path === "index/") path = "";
+    const setIframeSrc = (path) => {
+      if (isSPA) {
+        iframe.src = basepath + "index.html";
+      } else if (allPageRoutesServedFromIndex) {
+        if (path && !path.endsWith("/")) path += "/";
+        if (path === "index/") path = "";
 
-      iframe.src = basepath + (path || "") + "index.html";
-    } else {
-      iframe.src = basepath + (path || "index") + ".html";
+        iframe.src = basepath + (path || "") + "index.html";
+      } else {
+        if (path && path.endsWith('/')) path += 'index';
+
+        iframe.src = basepath + (path || "index") + ".html";
+      }
     }
+
+    console.log('change location: ', basepath + (path || 'index') + '.html')    
+    setIframeSrc(path);
 
     iframePolling = polliFrame();
 
     window.addEventListener('popstate', function(e) {
       console.log(e);
       clearInterval(iframePolling);
-      const newPath = window.location.hash.slice(1) || 'index';
-      // const newPath = e.target.location.hash.slice(1) || 'index';
+
+      const newPath = window.location.hash.slice(1) || '';
       console.log(basepath + newPath + '.html')
 
-      if (isSPA) {
-        iframe.src = basepath + "index.html";
-      } else if (pageRoutesServedFromIndex) {
-        if (!newPath.endsWith("/")) newPath += "/";
-        if (newPath === 'index/') newPath = '';
-
-        iframe.src = basepath + (newPath) + "index.html";
-      } else {
-        iframe.src = basepath + newPath + ".html";
-      }
-
+      setIframeSrc(newPath)
       iframePolling = polliFrame();
-
     });
 
     console.log(navigator.serviceWorker);
