@@ -1,10 +1,16 @@
 const axios = require("axios");
-const { readConfigFile } = require("./fs");
+const { readConfigFile, readDataFile } = require("./fs");
 const { stagehandErr, stagehandWarn, stagehandSuccess } = require("./logger");
 const { wrapExecCmd } = require("./wrapExecCmd");
 
-async function deleteGithubSecrets() {
-  wrapExecCmd("git config --get remote.origin.url").then(async (remote) => {
+async function deleteGithubSecrets(repo_path) {
+  const currentPath = process.cwd();
+  const cmd = `cd ${repo_path} && git config --get remote.origin.url`;
+  wrapExecCmd(cmd, 'Could not remove secrets')
+    .then(async (remote) => {
+
+    wrapExecCmd(`cd ${currentPath}`);
+
     const parts = remote.split("/");
     const owner = parts[parts.length - 2];
     const repo = parts[parts.length - 1].slice(0, -5);
@@ -36,14 +42,15 @@ async function deleteGithubSecrets() {
       "AWS_CF_DOMAIN",
     ];
 
-    await secrets.forEach(async (secret_name) => {
+    secrets.forEach((secret_name) => {
       url = `https://api.github.com/repos/${owner}/${repo}/actions/secrets/${secret_name}`;
       
       stagehandWarn(`Removing ${secret_name} secret...`);
-      await axios.delete(url, obj);
-      stagehandSuccess("removed", `${secret_name} secret has been:`);
+      axios.delete(url, obj).then(_ => {
+        stagehandSuccess("removed", `${secret_name} secret has been:`);
+      }).catch(err => stagehandErr(`Could not remove ${secret_name}`));
     });
-  });
+  }).catch(err => stagehandErr(err));
 }
 
 module.exports = { deleteGithubSecrets };

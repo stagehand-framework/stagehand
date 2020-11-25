@@ -1,16 +1,16 @@
 const { exec } = require("child_process");
 const { stagehandErr } = require('../util/logger');
 
-const wrapExecCmd = (cmd) => {
+const wrapExecCmd = (cmd, errMsg) => {
   return new Promise((resolve, reject) => {
     exec(cmd, (error, stdout, stderr) => {
       if (error) {
-        reject(error);
+        reject(errMsg || error);
         return;
       }
 
       if (stderr) {
-        reject(stderr);
+        reject(errMsg || stderr);
         return;
       }
 
