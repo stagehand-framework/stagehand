@@ -35,4 +35,11 @@ program
   .description("Destroy's stagehand application")
   .action(destroy);
 
+// Access
+program
+  .command("access")
+  .alias("ac")
+  .description("Access a stagehand application's permissions")
+  .action(access);
+
 program.parse(process.argv);
