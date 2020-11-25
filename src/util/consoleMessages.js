@@ -167,4 +167,5 @@ module.exports = {
   noAppFoundMessage,
   lambdaDeleteErrorMessage,
   helpLogs,
+  commands,
 };

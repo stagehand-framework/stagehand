@@ -5,11 +5,13 @@ const {
   stagehandSuccess,
 } = require("../util/logger");
 const readlineSync = require("readline-sync");
+const prompts = require("prompts");
 const {
   readDataFile,
   writeToDataFile,
   deleteGithubActions,
 } = require("../util/fs");
+const { validateGithubConnection } = require("../util/addGithubSecrets");
 const userApps = readDataFile();
 const { deleteStack } = require("../aws/deleteStack");
 const { emptyBucket } = require("../aws/emptyBucket");
@@ -65,24 +67,46 @@ const deleteData = (stackName) => {
   stagehandSuccess("removed", " Stack data:");
 };
 
-const destroy = async (args) => {
+const destroy = async () => {
   try {
-    const stackName = args.stackName;
-    if (!stackName)
-      return stagehandWarn(
-        'Please provide a stackName: "stagehand destroy --stackName <name>"'
+    const userApps = readDataFile();
+    const stackNames = Object.keys(userApps);
+    stackNames.splice(stackNames.indexOf("to_delete"), 1);
+    console.log(stackNames);
+    if (stackNames.length === 0) {
+      stagehandWarn(
+        `No stagehand apps have been created or added\n Start with "stagehand help --init"`
       );
-    const stack = userApps[stackName];
+    } else {
+      const questions = [
+        {
+          type: "select",
+          name: "stackNames",
+          message: "Pick a stagehand app to destroy.",
+          choices: stackNames,
+        },
+        {
+          type: "text", // (prev) => (stackNames.includes(prev) ? "text" : null)
+          name: "validate",
+          message: `Are you sure you want to destroy this app? (N/Y)`,
+        },
+      ];
 
-    if (!stack) return stagehandWarn(`No stack with name ${stackName} found`);
+      const result = await prompts(questions);
+      const stackName = stackNames[result["stackNames"]];
+      if (!result["validate"]) {
+        throw `Will not delete ${stackName}`;
+      }
 
-    if (validateDestroy(stackName)) {
+      validateGithubConnection();
+
+      const validationStatus = result["validate"].toUpperCase() === "Y";
+      const stack = userApps[stackName];
+
       if (stack.notOwnStack) return deleteData(stackName);
 
       deleteStackResources(stackName);
       deleteGithubSecrets();
-    } else {
-      throw `Could not delete stack ${stackName}`;
     }
   } catch (err) {
     stagehandErr(err);
