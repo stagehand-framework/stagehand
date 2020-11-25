@@ -4,7 +4,7 @@ Parameters:
   DefaultRootObject:
     Description: "The default path for the index document."
     Type: String
-    Default: "index.html"
+    Default: "stagehand_index.html"
   ErrorPagePath:
     Description: "The path of the error page for the website (e.g. /error.html). Must be a root-relative path."
     Type: String

@@ -1,4 +1,3 @@
-
 on:
   pull_request:
     types: [reopened, opened, synchronize, edited]
@@ -14,7 +13,7 @@ jobs:
       AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       AWS_CF_DOMAIN: '${{ secrets.AWS_CF_DOMAIN }}'
       BRANCH_NAME: ${{ github.head_ref }}
-      SOURCE_DIR: "out"
+      SOURCE_DIR: "STAGEHAND_SOURCE_DIR"
       DEST_DIR: ${{ github.head_ref }}/${{ github.sha }}
 
     steps:
@@ -29,21 +28,32 @@ jobs:
         run: exit 1
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Setup Next
-        run: npm install
+      - name: Setup app
+        run: STAGEHAND_SETUP_CMD
       - name: Clean out directory
-        run: rm -rf out
-      - name: Change basePath
-        run: sed -i 's/\( *basePath:\).*/\1 "\/${{ github.head_ref }}\/${{ github.sha }}",/' next.config.js
+        run: rm -rf ${{ env.SOURCE_DIR }}
 ####### Uncomment below to add env variables to use during build process #######
 ####### Add \n\ to the end of each secret to start a new line #######
 ####### EXCEPT DO NOT add to the end of the last secret #######
-      # - name: create .env.local
+      # - name: create .env
       #   run: echo -e "\
       #     SECRET1=${{ secrets.YOUR_SECRET1 }}\n\
-      #     SECRET2=${{ secrets.YOUR_SECRET2 }}" > .env.local
+      #     SECRET2=${{ secrets.YOUR_SECRET2 }}" > .env
       - name: Build Site
-        run: npm run-script build
+        run: STAGEHAND_BUILD_CMD
+      - name: Inject routes into stagehand files
+        run: |
+          sed -i 's/STAGEHAND_PLACEHOLDER/${{ env.AWS_CF_DOMAIN }}/' stagehand/stagehand.js
+          sed -i 's/STAGEHAND_PLACEHOLDER/${{ env.AWS_CF_DOMAIN }}\/${{ github.head_ref }}\/${{ github.sha }}/' stagehand/stagehand.html
+      - name: Set date
+        id: date
+        run: echo "::set-output name=date::$(date)"
+      - name: Inject date info to stagehand banner
+        run: sed -i 's/STAGEHAND_CREATED/Stagehand app created on ${{steps.date.outputs.date}}/' stagehand/stagehand.html
+      - name: Inject branch info to stagehand banner
+        run: sed -i 's/STAGEHAND_BRANCH/PR on branch ${{github.base_ref}}/' stagehand/stagehand.html
+      - name: Inject repo info to stagehand banner
+        run: sed -i 's/STAGEHAND_REPO/Owner:${{ github.repository_owner }}/' stagehand/stagehand.html
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
@@ -51,6 +61,11 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       - name: Sync to S3 Bucket
         run: aws s3 sync ./${{ env.SOURCE_DIR }} s3://${{ env.AWS_S3_BUCKET }}/${{ env.DEST_DIR }}
+      - name: Add stagehand files to S3 Bucket
+        run: |
+          aws s3 cp ./stagehand/stagehand.js s3://${{ env.AWS_S3_BUCKET }}/${{ env.DEST_DIR }}/stagehand.js
+          aws s3 cp ./stagehand/stagehand.html s3://${{ env.AWS_S3_BUCKET }}/${{ env.DEST_DIR }}/stagehand.html
+          aws s3 cp ./stagehand/stagehand_sw.js s3://${{ env.AWS_S3_BUCKET }}/stagehand_sw.js
       - name: "Comment PR"
         uses: actions/github-script@v3
         if: github.event_name == 'pull_request'
