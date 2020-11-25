@@ -24,7 +24,10 @@ const {
 const { getTemplatePath } = require("../util/paths");
 const { parseStackOutputJSON } = require("../util/parseAwsOutputs");
 const { stackOutputMessage } = require("../util/consoleMessages");
-const { addGithubSecrets, getPublicKey } = require("../util/addGithubSecrets");
+const {
+  addGithubSecrets,
+  validateGithubConnection,
+} = require("../util/addGithubSecrets");
 
 const BUILDS = ["gatsby", "next", "hugo", "react"];
 
@@ -106,20 +109,6 @@ const setUpS3Bucket = (domain) => {
   createDomainFile(domain);
   addDomain;
 };
-
-async function validateGithubConnection() {
-  try {
-    var { owner, repo, response } = await getPublicKey();
-    if (response.status !== 200) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-  } catch (e) {
-    stagehandErr(
-      `Couldn't connect to Github due to: ${e}.\n Please validate your access key, git remote value, remote repo permissions, stagehand arguments, etc.`
-    );
-    process.exit();
-  }
-}
 
 const init = async (args) => {
   try {

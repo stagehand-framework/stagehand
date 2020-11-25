@@ -25,6 +25,14 @@ program
 program
   .command("help")
   .alias("h")
-  .description("Lists stagehand application(s)")
+  .description("Shows help information for a command")
   .action(help);
+
+// Destroy
+program
+  .command("destroy")
+  .alias("d")
+  .description("Destroy's stagehand application")
+  .action(destroy);
+
 program.parse(process.argv);

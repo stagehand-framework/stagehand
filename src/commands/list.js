@@ -29,7 +29,6 @@ async function list() {
       name: "stackNames",
       message: "Pick a stagehand app to see more details on it.",
       choices: stackNames,
-      initial: 1,
     };
 
     const result = await prompts(questions);

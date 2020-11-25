@@ -97,4 +97,18 @@ async function addGithubSecrets(secrets) {
   });
 }
 
-module.exports = { addGithubSecrets, getPublicKey };
+async function validateGithubConnection() {
+  try {
+    var { owner, repo, response } = await getPublicKey();
+    if (response.status !== 200) {
+      throw `HTTP error! status: ${response.status}`;
+    }
+  } catch (e) {
+    stagehandErr(
+      `Couldn't connect to Github due to: ${e}.\n Please validate your access key, git remote value, remote repo permissions, stagehand arguments, etc.`
+    );
+    process.exit();
+  }
+}
+
+module.exports = { addGithubSecrets, validateGithubConnection };
