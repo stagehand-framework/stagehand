@@ -17,15 +17,16 @@ program.version(version).description("Stagehand Framework");
 program
   .command("init")
   .alias("i")
-  .description("Create stagehand application")
+  .description("Create a stagehand application")
   .action(init);
 
 // List
 program
   .command("list")
   .alias("l")
-  .description("Lists stagehand application(s)")
-  .action(list);
+  .description("Lists stagehand applications")
+  .action(list)
+  .helpInformation('more info');
 
 // Help
 program
@@ -38,14 +39,14 @@ program
 program
   .command("destroy")
   .alias("d")
-  .description("Destroy's stagehand application")
+  .description("Deletes a stagehand application")
   .action(destroy);
 
 // Access
 program
   .command("access")
   .alias("ac")
-  .description("Access a stagehand application's permissions")
+  .description("Apply or view access controls for a stagehand application")
   .action(access);
 
 // Add

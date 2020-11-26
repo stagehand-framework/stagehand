@@ -33,41 +33,34 @@ const {
   validateGithubConnection,
 } = require("../util/addGithubSecrets");
 
+let spinner;
+
 const createStagehandApp = async (stackName) => {
   stackName = stackName.replace(/\s/g, '');
 
-  const cmd = createStack(cloudformationTemplatePath, stackName);
+  const createCmd = createStack(cloudformationTemplatePath, stackName);
 
   stagehandWarn(
     `Provisioning AWS infrastructure. This may take a few minutes\n Grab a coffee while you wait`
   );
-  const spinner = startSpinner();
+  spinner = startSpinner();
 
-  wrapExecCmd(cmd)
-    .then((_) => {
-      stopSpinner(spinner);
-      stagehandSuccess("created", "AWS infrastructure:");
+  await wrapExecCmd(createCmd);
+  
+  stopSpinner(spinner);
+  stagehandSuccess("created", "AWS infrastructure:");
 
-      const cmd = getStackOutputs(stackName);
-      wrapExecCmd(cmd, 'Could not retrieve stack outputs')
-        .then((output) => {
-          const stackOutput = parseStackOutputJSON(output);
+  const outputCmd = getStackOutputs(stackName);
+  await wrapExecCmd(outputCmd, 'Could not retrieve stack outputs');
+  const stackOutput = parseStackOutputJSON(output);
 
-          addAppToData(stackName, stackOutput);
-          addGithubSecrets(stackOutput);
+  addAppToData(stackName, stackOutput);
+  addGithubSecrets(stackOutput);
 
-          const path = createDomainFile(stackOutput["Domain"]);
+  const path = createDomainFile(stackOutput["Domain"]);
 
-          wrapExecCmd(addDomainFileToS3(path, stackOutput["BucketName"]))
-            .then((_) => stagehandSuccess("added", "S3 domain file:"))
-            .catch((err) => stagehandErr("Could not add domain file"));
-        })
-        .catch((err) => stagehandErr(err));
-    })
-    .catch((err) => {
-      stopSpinner(spinner);
-      stagehandErr(err);
-    });
+  await wrapExecCmd(addDomainFileToS3(path, stackOutput["BucketName"]))
+  stagehandSuccess("added", "S3 domain file:")
 };
 
 const addAppToData = (name, info) => {
@@ -136,11 +129,13 @@ const getBuildInfo = async () => {
   }
 
   while (!confirm) {
+    confirm = undefined;
     results = await prompts(questions);
     Object.keys(results).forEach(info => stagehandSuccess(results[info], `\t${info}: `));
     
     result = await prompts(confirmQuestion);
     confirm = result["confirm"];
+    if (confirm === undefined) throw 'Exited initialiation process';
   }
   
   return results;  
@@ -173,21 +168,22 @@ const init = async (args) => {
     }
 
     await createConfigFile();
-    validateGithubConnection();
-    return;
+    await validateGithubConnection();
     const buildInfo = await getBuildInfo();
 
     createWorkflowDir();
     copyGithubActions();
+    return;
     injectBuildInfoToGithubActions(buildInfo);
     createDataFile();
 
     const routingType = await getRoutingType();
     copyStagehandClientFilesToRepo(routingType);
 
-    createStagehandApp(buildInfo["stackName"]);
+    await createStagehandApp(buildInfo["stackName"]);
 
   } catch (err) {
+    if (spinner) stopSpinner(spinner);
     stagehandErr(`Could not initialize app:\n${err}`);
   }
 };
