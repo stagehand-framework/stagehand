@@ -15,11 +15,11 @@ program.version(version).description("Stagehand Framework");
 // Init
 program
   .command("init")
-  .alias("d=i")
+  .alias("i")
   .description("Create stagehand application")
   .action(init);
 
-// List Command
+// List
 program
   .command("list")
   .alias("l")
@@ -46,5 +46,12 @@ program
   .alias("ac")
   .description("Access a stagehand application's permissions")
   .action(access);
+
+// Add
+program
+  .command("add")
+  .alias("a")
+  .description("Create stagehand application")
+  .action(add);
 
 program.parse(process.argv);

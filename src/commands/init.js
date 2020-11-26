@@ -172,9 +172,9 @@ const init = async (args) => {
       throw `Current directory is not a git repository or it is not tied to a GitHub Origin`;
     }
 
+    await createConfigFile();
     validateGithubConnection();
-    createConfigFile();
-
+    return;
     const buildInfo = await getBuildInfo();
 
     createWorkflowDir();

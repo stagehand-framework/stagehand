@@ -25,7 +25,17 @@ const parseReviewAppPaths = (output, domain) => {
   });
 };
 
+const displayBranchAndCommit = (paths) => {
+  return paths.reduce((pathObj, path) => {
+    const splitPath = path.split('/');
+    const branchCommitStr = `BRANCH => ${splitPath[3]}: COMMIT => ${splitPath[4]}`;
+    
+    return { ...pathObj, [branchCommitStr]: path };
+  }, {});
+}
+
 module.exports = {
   parseStackOutputJSON,
   parseReviewAppPaths,
+  displayBranchAndCommit,
 };

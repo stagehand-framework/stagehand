@@ -3,7 +3,7 @@
 
 const getAppPathsForS3Bucket =  (bucketName) => {
   // DO NOT remove --dryrun from command
-  return `aws s3 rm s3://${bucketName} --dryrun --recursive --exclude '*' --include '*index.html'`
+  return `aws s3 rm s3://${bucketName} --dryrun --recursive --exclude '*' --include '*stagehand_index.html'`
 };
 
 module.exports = {

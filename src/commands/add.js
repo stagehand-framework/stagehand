@@ -2,12 +2,21 @@ const { stagehandErr, stagehandSuccess, stagehandWarn } = require("../util/logge
 const { getBucketRoot } = require("../aws/getBucketRoot");
 const { wrapExecCmd } = require("../util/wrapExecCmd");
 const { readDataFile, writeToDataFile } = require('../util/fs');
+const prompts = require("prompts");
 
-const add = (args) => {
+const add = async (args) => {
   const userApps = readDataFile();
-  const s3 = args.bucket;
+  const question = {
+    type: "text",
+    name: "s3",
+    message: `What is the s3 bucket name of the existing app?`,
+    validate: s3 => !s3.includes('-s3bucket-') ? 'Please enter a valid S3 Bucket name' : true,
+  };
+
+  const result = await prompts(question);
+  const s3 = result.s3
   
-  if (!s3) return stagehandErr('Please provide a bucket name: "stagehand add --bucket <bucket>"');
+  if (!s3) return stagehandErr('Please provide a bucket name');
 
   wrapExecCmd(getBucketRoot(s3))
     .then(output => {

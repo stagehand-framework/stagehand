@@ -1,5 +1,6 @@
 const fs = require("fs");
 const moment = require("moment");
+const prompts = require("prompts");
 
 const { wrapExecCmd } = require("./wrapExecCmd");
 const {
@@ -19,9 +20,6 @@ const {
   frameworkStagehandFolderPath,
 } = require("./paths");
 const { stagehandErr, stagehandLog, stagehandSuccess } = require("./logger");
-
-const readlineSync = require("readline-sync");
-
 const createFolder = (path) => {
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path);
@@ -78,9 +76,10 @@ const copyStagehandClientFilesToRepo = (routeTypeInfo) => {
 
   const isSPA = routeTypeInfo["STAGEHAND_IS_SPA"] ? 'true' : 'false';
   const isIndexRoutes = routeTypeInfo["STAGEHAND_INDEX_ROUTES"] ? 'true' : 'false';
+
   stagehandJs = stagehandJs.replace('STAGEHAND_IS_SPA', isSPA);
   stagehandJs = stagehandJs.replace('STAGEHAND_INDEX_ROUTES', isIndexRoutes);
-  console.log(routeTypeInfo);
+
   fs.writeFileSync(userStagehandFolderPath + '/stagehand.js', stagehandJs);
 }
 
@@ -109,37 +108,41 @@ const writeToDataFile = (data) => {
   fs.writeFileSync(dataPath, JSON.stringify(data));
 };
 
-const addToken = () => {
-  const github_access_token = readlineSync.question(
-    `Please provide a valid github access token (https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token)
-    Only permission for access token needed is repo.
-    Enter token: `
-  );
+const addToken = async () => {
+  const question = {
+      type: "text",
+      name: "githubToken",
+      message: `Please provide a valid github access token
+ (https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token)
+ Only permission for access token needed is repo.
+ Enter token: `,
+  };
 
-  writeToConfigFile({ github_access_token: github_access_token });
+  const result = await prompts(question);
+
+  writeToConfigFile({ github_access_token: result["githubToken"] });
   stagehandSuccess("saved", "Stagehand configuration: ");
 };
 
-const createConfigFile = () => {
+const createConfigFile = async () => {
   createFolder(dataFolderPath);
 
   if (!fs.existsSync(configPath)) {
-    addToken();
+    await addToken();
   } else {
     let github_access_token = readConfigFile().github_access_token;
+    
+    const question = {
+      type: "confirm",
+      name: "useToken",
+      message: `Would you like to use existing Github config token?`,
+      initial: true,
+    };
 
-    stagehandSuccess(
-      github_access_token,
-      `Stagehand is already configured with this token: `
-    );
+    const result = await prompts(question);
 
-    const input = readlineSync.question(
-      "Would you like to replace this token with a new one? (N/Y)"
-    );
-    if (input.toUpperCase() === "Y") {
-      addToken();
-    } else {
-      stagehandSuccess("not updated", "Stagehand configuration: ");
+    if (!result.useToken) {
+      await addToken();
     }
   }
 };

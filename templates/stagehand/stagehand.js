@@ -33,8 +33,9 @@ window.addEventListener("DOMContentLoaded", function (e) {
 
         if (window.location.hash.slice(1) !== iframePath) {
           console.log('new poll:', iframePath)
-          const iframeTitle = (iframe.contentWindow || iframe.contentDocument).document.title;
+          const iframeTitle = ((irame.contentWindow && iframe.contentWindow.document) || iframe.contentDocument).title;
           window.history.pushState({}, iframeTitle, `#${iframePath || 'index'}`);
+          document.title = `Stagehand: ${iframeTitle}`;
         }
       }, 500);
     }
