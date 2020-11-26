@@ -31,7 +31,7 @@
     "url": "https://github.com/stagehand-framework/stagehand/issues"
   },
   "bin": {
-    "stagehand": "src/commands/execute.js"
+    "stagehand": "bin/cli.js"
   },
   "preferGlobal": true,
   "dependencies": {

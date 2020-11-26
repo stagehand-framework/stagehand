@@ -65,6 +65,10 @@ const deleteGithubActions = (repo_path) => {
   }
 };
 
+const deleteStagehandRepoFolder = (repo_path) => {
+  fs.rmdirSync(repo_path + "/.github/stagehand");
+}
+
 const copyStagehandClientFilesToRepo = (routeTypeInfo) => {
   createFolder(userStagehandFolderPath);
 
@@ -184,4 +188,5 @@ module.exports = {
   deleteGithubActions,
   injectBuildInfoToGithubActions,
   copyStagehandClientFilesToRepo,
+  deleteStagehandRepoFolder,
 };
