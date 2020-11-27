@@ -26,7 +26,6 @@ program
   .alias("l")
   .description("Lists stagehand applications")
   .action(list)
-  .helpInformation('more info');
 
 // Help
 program

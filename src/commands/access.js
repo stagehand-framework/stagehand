@@ -17,7 +17,7 @@ const {
 const userApps = readDataFile();
 const commands = ["ADD", "REMOVE", "VIEW"];
 
-const chooseAccessCommands = async (stackNames) => {
+const getUserChoices = async (stackNames) => {
   const questions = [
     {
       type: "select",
@@ -37,11 +37,10 @@ const chooseAccessCommands = async (stackNames) => {
   const stackName = stackNames[result["stackName"]];
   const command = commands[result["access"]];
 
-  console.log(command);
   if (Object.keys(result).length < 2) return;
-  
+
   return (!command)
-    ? await chooseAccessCommands(stackNames) 
+    ? await getUserChoices(stackNames) 
     : { stackName, command };
 };
 
@@ -54,7 +53,7 @@ const access = async () => {
         `No stagehand apps have been created or added\n Start with "stagehand help --init"`
       );
     } else {
-      const { stackName, command } = await chooseAccessCommands(stackNames);
+      const { stackName, command } = await getUserChoices(stackNames);
 
       const bucket = userApps[stackName].s3;
       const currUserAccess = await wrapExecCmd(getBucketAcl(bucket));
