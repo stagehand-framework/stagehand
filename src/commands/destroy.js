@@ -10,6 +10,7 @@ const {
   writeToDataFile,
   deleteGithubActions,
   deleteStagehandRepoFolder,
+  stagehandNotInitialized,
 } = require("../util/fs");
 
 const { validateGithubConnection } = require("../util/addGithubSecrets");
@@ -60,9 +61,10 @@ const deleteData = (stackName, userApps) => {
 
 const destroy = async () => {
   try {
+    if (stagehandNotInitialized()) return;
     const userApps = readDataFile();
     const stackNames = Object.keys(userApps);
-    
+
     if (stackNames.length === 0) {
       stagehandWarn(
         `No stagehand apps have been created or added\n Start with "stagehand help --init"`

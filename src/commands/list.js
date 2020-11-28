@@ -3,7 +3,7 @@ const open = require("open");
 
 const { getAppPathsForS3Bucket } = require("../aws/getBucketObjects");
 const { stagehandErr, stagehandLog, stagehandWarn } = require("../util/logger");
-const { readDataFile } = require("../util/fs");
+const { readDataFile, stagehandNotInitialized } = require("../util/fs");
 const { wrapExecCmd } = require("../util/wrapExecCmd");
 const {
   parseBranchesOutput,
@@ -56,6 +56,8 @@ const selectPath = async (pathsOutput, domain, stackName, stackNames, userApps) 
 
 async function list() {
   try {
+    if (stagehandNotInitialized()) return;
+
     const userApps = readDataFile();
     const stackNames = Object.keys(userApps);
   
@@ -69,45 +71,6 @@ async function list() {
       if (result) {
         await open(result);
       }
-
-      // const selectList = {
-      //   type: "select",
-      //   name: "stackNames",
-      //   message: "Select a stagehand app to see more details on it.",
-      //   choices: stackNames,
-      // };
-
-      // const result = await prompts(selectList);
-      // const choice = stackNames[result["stackNames"]];
-      // const appInfo = userApps[choice];
-
-      // const cmd = getAppPathsForS3Bucket(appInfo.s3);
-      // const output = await wrapExecCmd(cmd);
-      // if (!output) {
-      //   stagehandWarn(
-      //     `No review apps in ${appInfo.s3} detected\n Start by creating a Pull Request`
-      //   );
-      // } else {
-        // console.log(output);
-        // const paths = parseReviewAppPaths(output, appInfo.domain);
-        // const pathsObj = displayBranchAndCommit(paths);
-
-        // const selectList = {
-        //   type: "select",
-        //   name: "paths",
-        //   message: "Select a review environment to open it up",
-        //   choices: Object.keys(pathsObj),
-        // };
-
-        // const result = await prompts(selectList);
-        // const choice = pathsObj[result["paths"]];
-
-
-        // console.log(choice);
-
-        // console.log(pathsObj);
-        // displayListMessage(choice, paths);
-      // }
     }
   } catch (err) {
     stagehandErr(`Could not list Stagehand apps`);

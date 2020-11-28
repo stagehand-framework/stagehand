@@ -1,10 +1,11 @@
 const { stagehandErr, stagehandSuccess, stagehandWarn } = require("../util/logger");
 const { getBucketRoot } = require("../aws/getBucketRoot");
 const { wrapExecCmd } = require("../util/wrapExecCmd");
-const { readDataFile, writeToDataFile } = require('../util/fs');
+const { readDataFile, writeToDataFile, stagehandNotInitialized } = require('../util/fs');
 const prompts = require("prompts");
 
 const add = async (args) => {
+  if (stagehandNotInitialized()) return;
   const userApps = readDataFile();
   const question = {
     type: "text",

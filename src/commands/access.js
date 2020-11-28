@@ -9,7 +9,7 @@ const { helpLogs } = require("../util/consoleMessages");
 const { wrapExecCmd } = require("../util/wrapExecCmd");
 const { getBucketAcl } = require("../aws/getBucketAcl");
 const { putBucketAcl } = require("../aws/putBucketAcl");
-const { readDataFile } = require("../util/fs");
+const { readDataFile, stagehandNotInitialized } = require("../util/fs");
 const {
   displayListMessage,
   noAppFoundMessage,
@@ -45,6 +45,7 @@ const getUserChoices = async (stackNames) => {
 
 const access = async () => {
   try {
+    if (stagehandNotInitialized()) return;
     const userApps = readDataFile();
     const stackNames = Object.keys(userApps);
 

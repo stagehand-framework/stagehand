@@ -19,7 +19,7 @@ const {
   frameworkCreateReviewAppPath,
   frameworkStagehandFolderPath,
 } = require("./paths");
-const { stagehandErr, stagehandLog, stagehandSuccess } = require("./logger");
+const { stagehandErr, stagehandLog, stagehandSuccess, stagehandWarn } = require("./logger");
 const createFolder = (path) => {
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path);
@@ -67,7 +67,14 @@ const deleteGithubActions = (repo_path) => {
 
 const deleteStagehandRepoFolder = (repo_path) => {
   fs.rmdirSync(repo_path + "/.github/stagehand", { recursive: true });
-}
+};
+
+const stagehandNotInitialized = () => {
+  if (!fs.existsSync(dataFolderPath)) {
+    stagehandWarn(`No Stagehand apps were initialized yet\nGet started with "stagehand init"`);
+    return true;
+  }
+};
 
 const copyStagehandClientFilesToRepo = (routeTypeInfo) => {
   createFolder(userStagehandFolderPath);
@@ -189,4 +196,5 @@ module.exports = {
   injectBuildInfoToGithubActions,
   copyStagehandClientFilesToRepo,
   deleteStagehandRepoFolder,
+  stagehandNotInitialized,
 };
