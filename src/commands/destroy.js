@@ -97,7 +97,7 @@ const destroy = async () => {
       if (stack.notOwnStack) return deleteData(stackName, userApps);
 
       await deleteStackResources(stackName, userApps);
-      await deleteGithubSecrets();
+      await deleteGithubSecrets(stack.repo_path);
     }
   } catch (err) {
     stagehandErr(err);

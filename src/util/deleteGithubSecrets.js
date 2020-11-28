@@ -5,6 +5,7 @@ const { wrapExecCmd } = require("./wrapExecCmd");
 
 async function deleteGithubSecrets(repo_path) {
   const currentPath = process.cwd();
+  console.log('repo_path', repo_path);
   const cmd = `cd ${repo_path} && git config --get remote.origin.url`;
   wrapExecCmd(cmd, 'Could not remove secrets')
     .then(async (remote) => {
