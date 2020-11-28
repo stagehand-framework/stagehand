@@ -51,7 +51,7 @@ const createStagehandApp = async (stackName) => {
   stagehandSuccess("created", "AWS infrastructure:");
 
   const outputCmd = getStackOutputs(stackName);
-  await wrapExecCmd(outputCmd, 'Could not retrieve stack outputs');
+  const output = await wrapExecCmd(outputCmd, 'Could not retrieve stack outputs');
   const stackOutput = parseStackOutputJSON(output);
 
   addAppToData(stackName, stackOutput);
@@ -135,7 +135,7 @@ const getBuildInfo = async () => {
     
     result = await prompts(confirmQuestion);
     confirm = result["confirm"];
-    if (confirm === undefined) throw 'Exited initialiation process';
+    if (confirm === undefined) throw 'Exited initialization process';
   }
   
   return results;  
@@ -173,7 +173,6 @@ const init = async (args) => {
 
     createWorkflowDir();
     copyGithubActions();
-    return;
     injectBuildInfoToGithubActions(buildInfo);
     createDataFile();
 
