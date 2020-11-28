@@ -66,7 +66,7 @@ const deleteGithubActions = (repo_path) => {
 };
 
 const deleteStagehandRepoFolder = (repo_path) => {
-  fs.rmdirSync(repo_path + "/.github/stagehand");
+  fs.rmdirSync(repo_path + "/.github/stagehand", { recursive: true });
 }
 
 const copyStagehandClientFilesToRepo = (routeTypeInfo) => {
