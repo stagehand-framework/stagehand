@@ -63,9 +63,9 @@ jobs:
         run: aws s3 sync ./${{ env.SOURCE_DIR }} s3://${{ env.AWS_S3_BUCKET }}/${{ env.DEST_DIR }}
       - name: Add stagehand files to S3 Bucket
         run: |
-          aws s3 cp ./stagehand/stagehand.js s3://${{ env.AWS_S3_BUCKET }}/${{ env.DEST_DIR }}/stagehand.js
-          aws s3 cp ./stagehand/stagehand.html s3://${{ env.AWS_S3_BUCKET }}/${{ env.DEST_DIR }}/stagehand.html
-          aws s3 cp ./stagehand/stagehand_sw.js s3://${{ env.AWS_S3_BUCKET }}/stagehand_sw.js
+          aws s3 cp ./.github/stagehand/stagehand.js s3://${{ env.AWS_S3_BUCKET }}/${{ env.DEST_DIR }}/stagehand.js
+          aws s3 cp ./.github/stagehand/stagehand.html s3://${{ env.AWS_S3_BUCKET }}/${{ env.DEST_DIR }}/stagehand.html
+          aws s3 cp ./.github/stagehand/stagehand_sw.js s3://${{ env.AWS_S3_BUCKET }}/stagehand_sw.js
       - name: "Comment PR"
         uses: actions/github-script@v3
         if: github.event_name == 'pull_request'

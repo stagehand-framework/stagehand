@@ -33,7 +33,7 @@ window.addEventListener("DOMContentLoaded", function (e) {
 
         if (window.location.hash.slice(1) !== iframePath) {
           console.log('new poll:', iframePath)
-          const iframeTitle = ((irame.contentWindow && iframe.contentWindow.document) || iframe.contentDocument).title;
+          const iframeTitle = ((iframe.contentWindow && iframe.contentWindow.document) || iframe.contentDocument).title;
           window.history.pushState({}, iframeTitle, `#${iframePath || 'index'}`);
           document.title = `Stagehand: ${iframeTitle}`;
         }
