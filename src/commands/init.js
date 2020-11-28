@@ -168,13 +168,13 @@ const init = async (args) => {
     }
 
     await createConfigFile();
+    createDataFile();
     await validateGithubConnection();
     const buildInfo = await getBuildInfo();
 
     createWorkflowDir();
     copyGithubActions();
     injectBuildInfoToGithubActions(buildInfo);
-    createDataFile();
 
     const routingType = await getRoutingType();
     copyStagehandClientFilesToRepo(routingType);
