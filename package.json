@@ -1,6 +1,6 @@
 {
   "name": "stagehand-framework",
-  "version": "1.0.34--beta",
+  "version": "1.0.35--beta",
   "description": "#TODO",
   "homepage": "https://github.com/stagehand-framework/stagehand#readme",
   "main": "index.js",

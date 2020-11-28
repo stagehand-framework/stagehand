@@ -19,14 +19,12 @@ const { deleteStack } = require("../aws/deleteStack");
 const { emptyBucket } = require("../aws/emptyBucket");
 const { wrapExecCmd } = require("../util/wrapExecCmd");
 
-const deleteAppFromDataFile = (stackName) => {
+const deleteAppFromDataFile = (stackName, userApps) => {
   delete userApps[stackName];
   writeToDataFile(userApps);
 };
 
-const deleteStackResources = async (stackName) => {
-  const userApps = readDataFile();
-
+const deleteStackResources = async (stackName, userApps) => {
   stagehandWarn(`Deleting stack resources`);
 
   const bucketName = userApps[stackName].s3;
@@ -54,9 +52,9 @@ const deleteStackResources = async (stackName) => {
   deleteData(stackName);
 };
 
-const deleteData = (stackName) => {
+const deleteData = (stackName, userApps) => {
   stagehandWarn("Removing stack data locally...");
-  deleteAppFromDataFile(stackName);
+  deleteAppFromDataFile(stackName, userApps);
   stagehandSuccess("removed", " Stack data:");
 };
 
@@ -64,6 +62,7 @@ const destroy = async () => {
   try {
     const userApps = readDataFile();
     const stackNames = Object.keys(userApps);
+    
     if (stackNames.length === 0) {
       stagehandWarn(
         `No stagehand apps have been created or added\n Start with "stagehand help --init"`
@@ -93,9 +92,9 @@ const destroy = async () => {
       await validateGithubConnection();
       const stack = userApps[stackName];
 
-      if (stack.notOwnStack) return deleteData(stackName);
+      if (stack.notOwnStack) return deleteData(stackName, userApps);
 
-      await deleteStackResources(stackName);
+      await deleteStackResources(stackName, userApps);
       await deleteGithubSecrets();
     }
   } catch (err) {

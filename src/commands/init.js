@@ -27,7 +27,7 @@ const {
 } = require("../util/logger");
 const { cloudformationTemplatePath } = require("../util/paths");
 const { parseStackOutputJSON } = require("../util/parseAwsOutputs");
-const { stackOutputMessage } = require("../util/consoleMessages");
+const { stackOutputMessage, welcomeToStagehand } = require("../util/consoleMessages");
 const {
   addGithubSecrets,
   validateGithubConnection,
@@ -60,7 +60,8 @@ const createStagehandApp = async (stackName) => {
   const path = createDomainFile(stackOutput["Domain"]);
 
   await wrapExecCmd(addDomainFileToS3(path, stackOutput["BucketName"]))
-  stagehandSuccess("added", "S3 domain file:")
+  stagehandSuccess("added", "S3 domain file:");
+  stagehandLog(welcomeToStagehand());
 };
 
 const addAppToData = (name, info) => {
@@ -180,6 +181,7 @@ const init = async (args) => {
     copyStagehandClientFilesToRepo(routingType);
 
     await createStagehandApp(buildInfo["stackName"]);
+
 
   } catch (err) {
     if (spinner) stopSpinner(spinner);

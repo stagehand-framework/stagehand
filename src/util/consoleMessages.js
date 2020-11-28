@@ -137,6 +137,27 @@ const stackOutputMessage = (outputs) => {
   `;
 };
 
+const welcomeToStagehand = () => {
+  return `
+      _                   _                     _ 
+     | |                 | |                   | |
+  ___| |_ __ _  __ _  ___| |__   __ _ _ __   __| |
+ / __| __/ _\` |/ _\` |/ _ \\ '_ \\ / _\` | '_ \\ / _\` |
+ \\__ \\ || (_| | (_| |  __/ | | | (_| | | | | (_| |
+ |___/\\__\\__,_|\\__, |\\___|_| |_|\\__,_|_| |_|\\__,_|
+                __/ |                             
+               |___/                             
+
+
+Get started by pushing the "/.github" folder to your Github Repository
+To build out a custom dashboard check out the "/.github/stagehand.html" file
+
+Your stagehand environment build process is located at "/.github/workflows/create_review_app".
+This file will get triggered on a Pull Request, and on any additional commits to the branch.
+
+`
+}
+
 // ******** list Command ********
 const displayListMessage = (title, list) => {
   let currentMatch;
@@ -168,4 +189,5 @@ module.exports = {
   lambdaDeleteErrorMessage,
   helpLogs,
   commands,
+  welcomeToStagehand,
 };
