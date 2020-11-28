@@ -50,7 +50,7 @@ const deleteStackResources = async (stackName, userApps) => {
   deleteGithubActions(repo_path);
   stagehandSuccess("deleted", " GitHub actions:");
 
-  deleteData(stackName);
+  deleteData(stackName, userApps);
 };
 
 const deleteData = (stackName, userApps) => {
