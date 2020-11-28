@@ -91,7 +91,6 @@ const destroy = async () => {
         throw `Will not delete ${stackName}`;
       }
 
-      await validateGithubConnection();
       const stack = userApps[stackName];
 
       if (stack.notOwnStack) return deleteData(stackName, userApps);
