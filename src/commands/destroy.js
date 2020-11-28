@@ -19,14 +19,14 @@ const { deleteStack } = require("../aws/deleteStack");
 const { emptyBucket } = require("../aws/emptyBucket");
 const { wrapExecCmd } = require("../util/wrapExecCmd");
 
-const userApps = readDataFile();
-
 const deleteAppFromDataFile = (stackName) => {
   delete userApps[stackName];
   writeToDataFile(userApps);
 };
 
 const deleteStackResources = async (stackName) => {
+  const userApps = readDataFile();
+
   stagehandWarn(`Deleting stack resources`);
 
   const bucketName = userApps[stackName].s3;
@@ -45,7 +45,7 @@ const deleteStackResources = async (stackName) => {
 
   stagehandWarn("Deleting repo Stagehand folder");
   deleteStagehandRepoFolder(repo_path);
-  stagehandSuccess("deleted", "Stagehand folder:");
+  stagehandSuccess("deleted", " Stagehand folder:");
   
   stagehandWarn("Deleting GitHub actions...");
   deleteGithubActions(repo_path);

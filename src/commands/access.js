@@ -14,7 +14,6 @@ const {
   displayListMessage,
   noAppFoundMessage,
 } = require("../util/consoleMessages");
-const userApps = readDataFile();
 const commands = ["ADD", "REMOVE", "VIEW"];
 
 const getUserChoices = async (stackNames) => {
@@ -46,6 +45,7 @@ const getUserChoices = async (stackNames) => {
 
 const access = async () => {
   try {
+    const userApps = readDataFile();
     const stackNames = Object.keys(userApps);
 
     if (stackNames.length === 0) {
