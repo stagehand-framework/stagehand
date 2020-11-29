@@ -25,7 +25,7 @@
 - Provide your GitHub Token (this token only needs to be provided the very first use)
 - A folder in your home directory `./stagehand` will be created to house your configuration and your application data for Stagehand
 
-## Setting Up your Github Actions
+### Setting Up your Github Actions
 
 - You will be prompted to provide:
   - The name you wish to use
@@ -34,19 +34,6 @@
   - The directory that your app builds to (ie public, out, build)
 - This will create a `.github/workflow` directory in your repo for GitHub Actions.
   - If you need to alter your GitHub build process look for `create_review_app.yml` and `remove_review_app.yml`
-
-### Setting Up Your Stagehand Dashboard
-
-- Stagehand needs two additional pieces of information to know how to handle routing:
-- If you app is a Single Page Application (ie React)
-- Or if you app has all of its static routes served from `path/index.html` as opposed to just `path.html`
-  - Gatsby uses this routing out of the box
-  - You can check your build folder (public, out, build) to see how your application handles routing
-- This will create the `.github/stagehand` folder where the html, javascript, and service worker files will live
-- We provide a basic dashboard overlay that will be visible from every page of your stagehand application
-  - It is an HTML wrapper around your entire application
-  - We provide a banner at the top of your page containing some metadata (Creation Time, branch that the PR was opened on, and owner of the repository)
-- If you wish to add to this dashboard you can alter the html and javascript that we provide out of the box.
 
 ### Adding build time environment variables
 
@@ -94,6 +81,20 @@ An `API_KEY`, `DB_PASSWORD`, and `API_URL` secrets for a `.env.staging` file
     API_KEY=${{ secrets.API_KEY }}" > .env.staging
 ```
 
+### Setting Up Your Stagehand Dashboard
+
+- Stagehand needs two additional pieces of information to know how to handle routing:
+- If you app is a Single Page Application (ie React)
+- Or if you app has all of its static routes served from `path/index.html` as opposed to just `path.html`
+  - Gatsby uses this routing out of the box
+  - You can check your build folder (public, out, build) to see how your application handles routing
+- This will create the `.github/stagehand` folder where the html, javascript, and service worker files will live
+- We provide a basic dashboard overlay that will be visible from every page of your stagehand application
+  - It is an HTML wrapper around your entire application
+  - We provide a banner at the top of your page containing some metadata (Creation Time, branch that the PR was opened on, and owner of the repository)
+- If you wish to add to this dashboard you can alter the html and javascript that we provide out of the box.
+
+
 ### Pushing Your `./github` folder to your GitHub Repostory
 
 - The last step is pushing your `./github` folder to your repository
@@ -110,6 +111,11 @@ An `API_KEY`, `DB_PASSWORD`, and `API_URL` secrets for a `.env.staging` file
 
 # Stagehand Commands
 
+### `stagehand init`
+
+- Run this command from the root of your repostory that is linked to a GitHub repository
+- Follow the prompts to create a new Stagehand application
+- See "Your First Stagehand Application" above for more details on this process
 
 ### `stagehand list`
 
