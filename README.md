@@ -48,8 +48,11 @@
   - We provide a banner at the top of your page containing some metadata (Creation Time, branch that the PR was opened on, and owner of the repository)
 - If you wish to add to this dashboard you can alter the html and javascript that we provide out of the box.
 
-### Adding environment variables
+### Adding build time environment variables
 
+- First add each build time environment variables to your GitHub repository secrets
+  - Settings => Secrets
+- Next you must access each of those secrets in your build file
 - If you navigate to `.github/workflows/create_review_app` you will come across this code on line 35
 ```
 ####### Uncomment below to add env variables to use during build process #######
