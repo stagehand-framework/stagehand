@@ -48,9 +48,9 @@ const copyGithubActions = () => {
 
   stagehandSuccess("created", "Remove review app Github action: ");
 
-  fs.copyFileSync(frameworkRobotPath, robotPath);
+  // fs.copyFileSync(frameworkRobotPath, robotPath);
 
-  stagehandSuccess("created", "robots.txt: ");
+  // stagehandSuccess("created", "robots.txt: ");
 };
 
 const injectBuildInfoToGithubActions = (info) => {
