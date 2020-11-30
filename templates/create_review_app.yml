@@ -47,7 +47,7 @@ jobs:
           sed -i 's/STAGEHAND_PLACEHOLDER/${{ env.AWS_CF_DOMAIN }}\/${{ github.head_ref }}\/${{ github.sha }}/' ./.github/stagehand/stagehand.html
       - name: Set date
         id: date
-        run: echo "::set-output name=date::$(date)"
+        run: echo "::set-output name=date::$(TZ=American/New_York date)"
       - name: Inject date info to stagehand banner
         run: sed -i 's/STAGEHAND_CREATED/Stagehand app created on ${{steps.date.outputs.date}}/' ./.github/stagehand/stagehand.html
       - name: Inject branch info to stagehand banner
