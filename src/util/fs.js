@@ -108,10 +108,8 @@ const copyStagehandClientFilesToRepo = (routeTypeInfo) => {
     );
   });
 
-  let stagehandJs = fs.readFileSync(
-    userStagehandFolderPath + "/stagehand.js",
-    "utf8"
-  );
+  let stagehandJs = fs.readFileSync(userStagehandFolderPath + '/stagehand.js', 'utf8');
+  let stagehandSw = fs.readFileSync(userStagehandFolderPath + '/stagehand_sw.js', 'utf8');
 
   const isSPA = routeTypeInfo["STAGEHAND_IS_SPA"] ? "true" : "false";
   const isIndexRoutes = routeTypeInfo["STAGEHAND_INDEX_ROUTES"]
@@ -121,8 +119,11 @@ const copyStagehandClientFilesToRepo = (routeTypeInfo) => {
   stagehandJs = stagehandJs.replace("STAGEHAND_IS_SPA", isSPA);
   stagehandJs = stagehandJs.replace("STAGEHAND_INDEX_ROUTES", isIndexRoutes);
 
-  fs.writeFileSync(userStagehandFolderPath + "/stagehand.js", stagehandJs);
-};
+  stagehandSw = stagehandSw.replace('STAGEHAND_INDEX_ROUTES', isIndexRoutes);
+
+  fs.writeFileSync(userStagehandFolderPath + '/stagehand.js', stagehandJs);
+  fs.writeFileSync(userStagehandFolderPath + '/stagehand_sw.js', stagehandSw);
+}
 
 const isRepo = () => {
   if (!fs.existsSync(gitPath)) return false;

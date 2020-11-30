@@ -3,7 +3,7 @@
 # Prerequisites
 
 - AWS Account
-- AWS CLI figured to your AWS Account
+- AWS CLI configured to your AWS Account
   - For help, see this article: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
 - GitHub Token
   - Log into your GitHub Account
@@ -15,7 +15,7 @@
 
 # Installation
 
-- Run the install command: `npm install -g stagehand-framework`
+- Run the install command: `npm install i -g stagehand-framework`
 
 
 # Your First Stagehand Application
@@ -23,7 +23,7 @@
 - Navigate to the root of your local git repository, make sure that it is connected with a GitHub repository
 - Run `stagehand init`
 - Provide your GitHub Token (this token only needs to be provided the very first use)
-- A folder in your home directory `./stagehand` will be created to house your configuration and your application data for Stagehand
+- A folder in your home directory `/.stagehand` will be created to house your configuration and your application data for Stagehand
 
 ### Setting Up your Github Actions
 
@@ -43,11 +43,11 @@
 - If you navigate to `.github/workflows/create_review_app` you will come across this code on line 35
 ```
 ####### Uncomment below to add env variables to use during build process #######
-####### Add \n\ to the end of each secret to start a new line #######
+####### Add \n to the end of each secret to start a new line #######
 ####### EXCEPT DO NOT add to the end of the last secret #######
       # - name: create .env
       #   run: echo -e "\
-      #     SECRET1=${{ secrets.YOUR_SECRET1 }}\n\
+      #     SECRET1=${{ secrets.YOUR_SECRET1 }}\n
       #     SECRET2=${{ secrets.YOUR_SECRET2 }}" > .env
 ```
 - If you uncomment the last 4 lines you can add in your own secrets there to provide to a `.env` file at build time.
@@ -67,7 +67,7 @@ An `API_KEY` and a `DB_PASSWORD` secret for a `.env` file:
 ```
 - name: create .env
   run: echo -e "\
-    DB_PASSWORD=${{ secrets.DB_PASSWORD }}\n\
+    DB_PASSWORD=${{ secrets.DB_PASSWORD }}\n
     API_KEY=${{ secrets.API_KEY }}" > .env
 ```
 
@@ -76,8 +76,8 @@ An `API_KEY`, `DB_PASSWORD`, and `API_URL` secrets for a `.env.staging` file
 ```
 - name: create .env
   run: echo -e "\
-    DB_PASSWORD=${{ secrets.DB_PASSWORD }}\n\
-    API_URL=${{ secrets.API_URL }}\n\
+    DB_PASSWORD=${{ secrets.DB_PASSWORD }}\n
+    API_URL=${{ secrets.API_URL }}\n
     API_KEY=${{ secrets.API_KEY }}" > .env.staging
 ```
 
@@ -126,6 +126,7 @@ An `API_KEY`, `DB_PASSWORD`, and `API_URL` secrets for a `.env.staging` file
 ### `stagehand access`
 
 - Use this command to `VIEW`, `ADD`, or `REMOVE` access to one of your applications
+- `ADD` access lets other developers working on the same repository have access to the active staging environments
 - To `ADD` access you must have the user's AWS Account Email
 - The `ADD` command will return the name of the storage location of the staging environments
 

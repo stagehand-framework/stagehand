@@ -32,9 +32,8 @@ window.addEventListener("DOMContentLoaded", function (e) {
         if (iframePath.endsWith('.html')) iframePath = iframePath.slice(0, -5);
 
         if (window.location.hash.slice(1) !== iframePath) {
-          console.log('new poll:', iframePath)
           const iframeTitle = ((iframe.contentWindow && iframe.contentWindow.document) || iframe.contentDocument).title;
-          window.history.pushState({}, iframeTitle, `#${iframePath || 'index'}`);
+          window.history.replaceState({}, iframeTitle, `#${iframePath || 'index'}`);
           document.title = `Stagehand: ${iframeTitle}`;
         }
       }, 500);
@@ -45,27 +44,24 @@ window.addEventListener("DOMContentLoaded", function (e) {
         iframe.src = basepath + "index.html";
       } else if (allPageRoutesServedFromIndex) {
         if (path && !path.endsWith("/")) path += "/";
-        if (path === "index/") path = "";
+        if (path && path.endsWith("index/")) path = path.slice(0, -6);
 
         iframe.src = basepath + (path || "") + "index.html";
       } else {
-        if (path && path.endsWith('/')) path += 'index';
+        if (path && path.endsWith("/")) path += "index";
 
         iframe.src = basepath + (path || "index") + ".html";
       }
-    }
+    };
 
-    console.log('change location: ', basepath + (path || 'index') + '.html')    
     setIframeSrc(path);
 
     iframePolling = polliFrame();
 
     window.addEventListener('popstate', function(e) {
-      console.log(e);
       clearInterval(iframePolling);
 
       const newPath = window.location.hash.slice(1) || '';
-      console.log(basepath + newPath + '.html')
 
       setIframeSrc(newPath)
       iframePolling = polliFrame();

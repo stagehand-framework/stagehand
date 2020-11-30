@@ -33,11 +33,11 @@ jobs:
       - name: Clean out directory
         run: rm -rf ${{ env.SOURCE_DIR }}
 ####### Uncomment below to add env variables to use during build process #######
-####### Add \n\ to the end of each secret to start a new line #######
+####### Add \n to the end of each secret to start a new line #######
 ####### EXCEPT DO NOT add to the end of the last secret #######
       # - name: create .env
       #   run: echo -e "\
-      #     SECRET1=${{ secrets.YOUR_SECRET1 }}\n\
+      #     SECRET1=${{ secrets.YOUR_SECRET1 }}\n
       #     SECRET2=${{ secrets.YOUR_SECRET2 }}" > .env
       - name: Build Site
         run: STAGEHAND_BUILD_CMD

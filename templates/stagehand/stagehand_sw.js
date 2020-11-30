@@ -1,5 +1,8 @@
+const allPageRoutesServedFromIndex = STAGEHAND_INDEX_ROUTES;
+
 self.addEventListener("install", event => {
   console.log("service worker installed");
+  console.log("You may need to refresh the page for Stagehand to work");
 });
 
 self.addEventListener("activate", event => {
@@ -50,6 +53,7 @@ const handleRequest = async event => {
     let req;
 
     if (urlPath.startsWith('/')) urlPath = urlPath.slice(1);
+    if (allPageRoutesServedFromIndex && !urlPath.endsWith('/')) urlPath += '/';
     if (urlPath.endsWith('/') || urlPath === '') urlPath += 'index';
     if (urlPath && !urlPath.includes('.')) urlPath += '.html';
 
@@ -62,13 +66,9 @@ const handleRequest = async event => {
       urlPath = urlDomain + '/' + basePath + '/' + urlPath;
     }
 
-    console.log('urlPath:', urlPath);
-
     req = new Request(urlPath, {
       ...event.request,
     });
-
-    console.log("request:", req);
 
     return fetch(req)
       .then(res => res)
