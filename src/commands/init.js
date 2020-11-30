@@ -1,8 +1,9 @@
-const prompts = require('prompts');
+const prompts = require("prompts");
 
 const { getStackOutputs } = require("../aws/getStackOutputs");
 const { createStack } = require("../aws/createStack");
 const { addDomainFileToS3 } = require("../aws/addDomainFileToS3");
+const { putObject } = require("../aws/putObject");
 const { generateRandomStackName } = require("../util/generateRandomStackName");
 const { wrapExecCmd } = require("../util/wrapExecCmd");
 const {
@@ -25,9 +26,15 @@ const {
   stagehandSuccess,
   stagehandWarn,
 } = require("../util/logger");
-const { cloudformationTemplatePath } = require("../util/paths");
+const {
+  cloudformationTemplatePath,
+  frameworkRobotPath,
+} = require("../util/paths");
 const { parseStackOutputJSON } = require("../util/parseAwsOutputs");
-const { stackOutputMessage, welcomeToStagehand } = require("../util/consoleMessages");
+const {
+  stackOutputMessage,
+  welcomeToStagehand,
+} = require("../util/consoleMessages");
 const {
   addGithubSecrets,
   validateGithubConnection,
@@ -36,7 +43,7 @@ const {
 let spinner;
 
 const createStagehandApp = async (stackName) => {
-  stackName = stackName.replace(/\s/g, '');
+  stackName = stackName.replace(/\s/g, "");
 
   const createCmd = createStack(cloudformationTemplatePath, stackName);
 
@@ -46,12 +53,15 @@ const createStagehandApp = async (stackName) => {
   spinner = startSpinner();
 
   await wrapExecCmd(createCmd);
-  
+
   stopSpinner(spinner);
   stagehandSuccess("created", "AWS infrastructure:");
 
   const outputCmd = getStackOutputs(stackName);
-  const output = await wrapExecCmd(outputCmd, 'Could not retrieve stack outputs');
+  const output = await wrapExecCmd(
+    outputCmd,
+    "Could not retrieve stack outputs"
+  );
   const stackOutput = parseStackOutputJSON(output);
 
   addAppToData(stackName, stackOutput);
@@ -59,7 +69,10 @@ const createStagehandApp = async (stackName) => {
 
   const path = createDomainFile(stackOutput["Domain"]);
 
-  await wrapExecCmd(addDomainFileToS3(path, stackOutput["BucketName"]))
+  await wrapExecCmd(addDomainFileToS3(path, stackOutput["BucketName"]));
+  await wrapExecCmd(
+    putObject(stackOutput["BucketName"], frameworkRobotPath, "robots.txt")
+  );
   stagehandSuccess("added", "S3 domain file:");
   stagehandLog(welcomeToStagehand());
 };
@@ -82,9 +95,9 @@ const validateStackName = (name) => {
   const stackNames = Object.keys(userApps);
 
   if (stackNames.includes(name)) {
-    return 'Name is taken already';
+    return "Name is taken already";
   } else if (name.trim().length === 0) {
-    return 'Please provide a name';
+    return "Please provide a name";
   } else {
     return true;
   }
@@ -106,41 +119,46 @@ const getBuildInfo = async () => {
       type: "text",
       name: "setupCmd",
       message: `What is your app's setup command?\n (ex: npm install, brew install hugo)`,
-      validate: cmd => cmd.trim().length === 0 ? 'Please enter a setup command' : true,
+      validate: (cmd) =>
+        cmd.trim().length === 0 ? "Please enter a setup command" : true,
     },
     {
       type: "text",
       name: "buildCmd",
       message: `What is your app's build command?\n (ex: npm run-script build, hugo)`,
-      validate: cmd => cmd.trim().length === 0 ? 'Please enter a build command' : true,
+      validate: (cmd) =>
+        cmd.trim().length === 0 ? "Please enter a build command" : true,
     },
     {
       type: "text",
       name: "buildPath",
       message: `What is the path of the static assets after build?\n (ex: public, out, build)`,
-      validate: cmd => cmd.trim().length === 0 ? 'Please enter a build path' : true,
+      validate: (cmd) =>
+        cmd.trim().length === 0 ? "Please enter a build path" : true,
     },
   ];
 
   const confirmQuestion = {
-    type: 'confirm',
-    name: 'confirm',
-    message: 'Are these correct?',
-    initial: true
-  }
+    type: "confirm",
+    name: "confirm",
+    message: "Are these correct?",
+    initial: true,
+  };
 
   while (!confirm) {
     confirm = undefined;
     results = await prompts(questions);
-    Object.keys(results).forEach(info => stagehandSuccess(results[info], `\t${info}: `));
-    
+    Object.keys(results).forEach((info) =>
+      stagehandSuccess(results[info], `\t${info}: `)
+    );
+
     result = await prompts(confirmQuestion);
     confirm = result["confirm"];
-    if (confirm === undefined) throw 'Exited initialization process';
+    if (confirm === undefined) throw "Exited initialization process";
   }
-  
-  return results;  
-}
+
+  return results;
+};
 
 const getRoutingType = async () => {
   const questions = [
@@ -151,7 +169,7 @@ const getRoutingType = async () => {
       initial: true,
     },
     {
-      type: prev => prev ? null : "confirm",
+      type: (prev) => (prev ? null : "confirm"),
       name: "STAGEHAND_INDEX_ROUTES",
       message: `Are all your static routes served from "path/index.html"?\n (as opposed to "path.html")`,
       initial: true,
@@ -181,8 +199,6 @@ const init = async (args) => {
     copyStagehandClientFilesToRepo(routingType);
 
     await createStagehandApp(buildInfo["stackName"]);
-
-
   } catch (err) {
     if (spinner) stopSpinner(spinner);
     stagehandErr(`Could not initialize app:\n${err}`);
