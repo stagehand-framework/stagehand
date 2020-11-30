@@ -3,7 +3,7 @@
 # Prerequisites
 
 - AWS Account
-- AWS CLI figured to your AWS Account
+- AWS CLI configured to your AWS Account
   - For help, see this article: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
 - GitHub Token
   - Log into your GitHub Account
@@ -15,7 +15,7 @@
 
 # Installation
 
-- Run the install command: `npm install -g stagehand-framework`
+- Run the install command: `npm install i -g stagehand-framework`
 
 
 # Your First Stagehand Application
@@ -23,7 +23,7 @@
 - Navigate to the root of your local git repository, make sure that it is connected with a GitHub repository
 - Run `stagehand init`
 - Provide your GitHub Token (this token only needs to be provided the very first use)
-- A folder in your home directory `./stagehand` will be created to house your configuration and your application data for Stagehand
+- A folder in your home directory `/.stagehand` will be created to house your configuration and your application data for Stagehand
 
 ### Setting Up your Github Actions
 
