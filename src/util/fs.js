@@ -9,6 +9,7 @@ const {
   userCreateReviewAppPath,
   userRemoveReviewAppPath,
   userStagehandFolderPath,
+  robotPath,
   dataPath,
   configPath,
   logPath,
@@ -18,8 +19,14 @@ const {
   frameworkRemoveReviewAppPath,
   frameworkCreateReviewAppPath,
   frameworkStagehandFolderPath,
+  frameworkRobotPath,
 } = require("./paths");
-const { stagehandErr, stagehandLog, stagehandSuccess, stagehandWarn } = require("./logger");
+const {
+  stagehandErr,
+  stagehandLog,
+  stagehandSuccess,
+  stagehandWarn,
+} = require("./logger");
 const createFolder = (path) => {
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path);
@@ -40,17 +47,30 @@ const copyGithubActions = () => {
   fs.copyFileSync(frameworkRemoveReviewAppPath, userRemoveReviewAppPath);
 
   stagehandSuccess("created", "Remove review app Github action: ");
+
+  fs.copyFileSync(frameworkRobotPath, robotPath);
+
+  stagehandSuccess("created", "robots.txt: ");
 };
 
 const injectBuildInfoToGithubActions = (info) => {
-  let createReviewAppFile = fs.readFileSync(userCreateReviewAppPath, 'utf8');
+  let createReviewAppFile = fs.readFileSync(userCreateReviewAppPath, "utf8");
 
-  createReviewAppFile = createReviewAppFile.replace('STAGEHAND_SOURCE_DIR', info["buildPath"])
-  createReviewAppFile = createReviewAppFile.replace('STAGEHAND_SETUP_CMD', info["setupCmd"])
-  createReviewAppFile = createReviewAppFile.replace('STAGEHAND_BUILD_CMD', info["buildCmd"])
+  createReviewAppFile = createReviewAppFile.replace(
+    "STAGEHAND_SOURCE_DIR",
+    info["buildPath"]
+  );
+  createReviewAppFile = createReviewAppFile.replace(
+    "STAGEHAND_SETUP_CMD",
+    info["setupCmd"]
+  );
+  createReviewAppFile = createReviewAppFile.replace(
+    "STAGEHAND_BUILD_CMD",
+    info["buildCmd"]
+  );
 
   fs.writeFileSync(userCreateReviewAppPath, createReviewAppFile);
-}
+};
 
 const deleteGithubActions = (repo_path) => {
   fs.unlinkSync(repo_path + "/.github/workflows/create_review_app.yml");
@@ -71,7 +91,9 @@ const deleteStagehandRepoFolder = (repo_path) => {
 
 const stagehandNotInitialized = () => {
   if (!fs.existsSync(dataFolderPath)) {
-    stagehandWarn(`No Stagehand apps were initialized yet\nGet started with "stagehand init"`);
+    stagehandWarn(
+      `No Stagehand apps were initialized yet\nGet started with "stagehand init"`
+    );
     return true;
   }
 };
@@ -79,18 +101,23 @@ const stagehandNotInitialized = () => {
 const copyStagehandClientFilesToRepo = (routeTypeInfo) => {
   createFolder(userStagehandFolderPath);
 
-  ['/stagehand.html', '/stagehand.js', '/stagehand_sw.js'].forEach(file => {
-    fs.copyFileSync(frameworkStagehandFolderPath + file, userStagehandFolderPath + file);
+  ["/stagehand.html", "/stagehand.js", "/stagehand_sw.js"].forEach((file) => {
+    fs.copyFileSync(
+      frameworkStagehandFolderPath + file,
+      userStagehandFolderPath + file
+    );
   });
 
   let stagehandJs = fs.readFileSync(userStagehandFolderPath + '/stagehand.js', 'utf8');
   let stagehandSw = fs.readFileSync(userStagehandFolderPath + '/stagehand_sw.js', 'utf8');
 
-  const isSPA = routeTypeInfo["STAGEHAND_IS_SPA"] ? 'true' : 'false';
-  const isIndexRoutes = routeTypeInfo["STAGEHAND_INDEX_ROUTES"] ? 'true' : 'false';
+  const isSPA = routeTypeInfo["STAGEHAND_IS_SPA"] ? "true" : "false";
+  const isIndexRoutes = routeTypeInfo["STAGEHAND_INDEX_ROUTES"]
+    ? "true"
+    : "false";
 
-  stagehandJs = stagehandJs.replace('STAGEHAND_IS_SPA', isSPA);
-  stagehandJs = stagehandJs.replace('STAGEHAND_INDEX_ROUTES', isIndexRoutes);
+  stagehandJs = stagehandJs.replace("STAGEHAND_IS_SPA", isSPA);
+  stagehandJs = stagehandJs.replace("STAGEHAND_INDEX_ROUTES", isIndexRoutes);
 
   stagehandSw = stagehandSw.replace('STAGEHAND_INDEX_ROUTES', isIndexRoutes);
 
@@ -125,9 +152,9 @@ const writeToDataFile = (data) => {
 
 const addToken = async () => {
   const question = {
-      type: "text",
-      name: "githubToken",
-      message: `Please provide a valid github access token
+    type: "text",
+    name: "githubToken",
+    message: `Please provide a valid github access token
  (https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token)
  Only permission for access token needed is repo.
  Enter token: `,
@@ -146,7 +173,7 @@ const createConfigFile = async () => {
     await addToken();
   } else {
     let github_access_token = readConfigFile().github_access_token;
-    
+
     const question = {
       type: "confirm",
       name: "useToken",
@@ -179,9 +206,9 @@ const writeToLogFile = (command, args) => {
 
 const createDomainFile = (domain) => {
   const currentDomainPath = domainPath(domain);
-  fs.writeFileSync(currentDomainPath, '');
+  fs.writeFileSync(currentDomainPath, "");
   return currentDomainPath;
-}
+};
 
 module.exports = {
   isRepo,
