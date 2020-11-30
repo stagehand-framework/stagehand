@@ -1,5 +1,4 @@
 const fs = require("fs");
-const moment = require("moment");
 const prompts = require("prompts");
 
 const { wrapExecCmd } = require("./wrapExecCmd");
@@ -47,10 +46,6 @@ const copyGithubActions = () => {
   fs.copyFileSync(frameworkRemoveReviewAppPath, userRemoveReviewAppPath);
 
   stagehandSuccess("created", "Remove review app Github action: ");
-
-  // fs.copyFileSync(frameworkRobotPath, robotPath);
-
-  // stagehandSuccess("created", "robots.txt: ");
 };
 
 const injectBuildInfoToGithubActions = (info) => {
@@ -198,11 +193,11 @@ const writeToConfigFile = (config) => {
   fs.writeFileSync(configPath, JSON.stringify(config));
 };
 
-const writeToLogFile = (command, args) => {
-  const timestamp = moment().format("MMMM Do YYYY, h:mm:ss a");
-  const data = `${timestamp} > stagehand ${[command].concat(args).join(" ")}`;
-  fs.appendFileSync(logPath, `${data}\n`);
-};
+// const writeToLogFile = (command, args) => {
+//   const timestamp = moment().format("MMMM Do YYYY, h:mm:ss a");
+//   const data = `${timestamp} > stagehand ${[command].concat(args).join(" ")}`;
+//   fs.appendFileSync(logPath, `${data}\n`);
+// };
 
 const createDomainFile = (domain) => {
   const currentDomainPath = domainPath(domain);
@@ -221,7 +216,6 @@ module.exports = {
   createConfigFile,
   readConfigFile,
   writeToConfigFile,
-  writeToLogFile,
   createDomainFile,
   deleteGithubActions,
   injectBuildInfoToGithubActions,
