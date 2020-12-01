@@ -15,7 +15,7 @@
 
 # Installation
 
-- Run the install command: `npm install i -g stagehand-framework`
+- Run the install command: `npm i -g stagehand-framework`
 
 
 # Your First Stagehand Application
@@ -23,7 +23,7 @@
 - Navigate to the root of your local git repository, make sure that it is connected with a GitHub repository
 - Run `stagehand init`
 - Provide your GitHub Token (this token only needs to be provided the very first use)
-- A folder in your home directory `/.stagehand` will be created to house your configuration and your application data for Stagehand
+- A folder in your home directory `/  .stagehand` will be created to house your configuration and your application data for Stagehand
 
 ### Setting Up your Github Actions
 
