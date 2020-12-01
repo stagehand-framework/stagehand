@@ -53,7 +53,8 @@ const handleRequest = async event => {
     let req;
 
     if (urlPath.startsWith('/')) urlPath = urlPath.slice(1);
-    if (allPageRoutesServedFromIndex && 
+    if (allPageRoutesServedFromIndex &&
+        urlPath !== '' && 
         !urlPath.endsWith('/') && 
         !urlPath.includes('.') &&
         !urlPath.endsWith('index')) urlPath += '/';
