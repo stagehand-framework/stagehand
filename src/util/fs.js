@@ -96,7 +96,7 @@ const stagehandNotInitialized = () => {
 const copyStagehandClientFilesToRepo = (routeTypeInfo) => {
   createFolder(userStagehandFolderPath);
 
-  ["/stagehand.html", "/stagehand.js", "/stagehand_sw.js"].forEach((file) => {
+  ["/stagehand.html", "/stagehand.js", "/stagehand_sw.js", "/stagehand_logo.svg"].forEach((file) => {
     fs.copyFileSync(
       frameworkStagehandFolderPath + file,
       userStagehandFolderPath + file

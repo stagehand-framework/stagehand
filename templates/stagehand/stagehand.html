@@ -3,15 +3,97 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Stagehand: Pull Request Environments</title>
+    <title>Stagehand: Review Apps</title>
     <script type="text/javascript">
       if (navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage({ resetBasepath: true });
       }
     </script>
+    <style>
+      #stagehand-dashboard {
+        padding-left: 10px; 
+        position: fixed; 
+        right: 0; 
+        left: 0; 
+        top: 0; 
+        width: 100%;  
+        height: 40px; 
+        overflow: hidden; 
+        webkit-transition: height 0.3s; 
+        -moz-transition: height 0.3s; 
+        transition: height 0.3s;
+      }
+
+      #stagehand-logo {
+        padding-left: 10px;
+        z-index: 999;
+        position: fixed; 
+        display: inline; 
+        left: 0; 
+        height: 40px; 
+        width: 40px;
+      }
+
+      #stagehand-banner {
+        position: fixed;
+        right: 0; 
+        left: -3000px; 
+        top: 0;
+        text-align: center; 
+        margin-left: 50px;
+        z-index: 998; 
+        background: none; 
+        color: transparent; 
+        display: inline;
+        transition: 300ms left cubic-bezier(0.77, 0, 0.175, 1);
+      }
+    </style>
   </head>
-  <body><div style="text-align: center; padding-left: 10px; position: fixed; right: 0; left: 0; top: 0; width: 100%; z-index: 999; background: rgba(255, 165, 0, 0.73); color: #fff; height: 20px; overflow: hidden; webkit-transition: height 0.3s; -moz-transition: height 0.3s; transition: height 0.3s;">STAGEHAND_CREATED -- STAGEHAND_BRANCH -- STAGEHAND_REPO</div>
+  <body>
+    <div id='stagehand-dashboard'>
+      <img id="stagehand-logo" src="https://STAGEHAND_PLACEHOLDER/stagehand_logo.svg" alt="stagehand logo" />
+      <p id='stagehand-banner'>STAGEHAND_CREATED -- STAGEHAND_BRANCH -- STAGEHAND_REPO</p>
+    </div>
     <script src="https://STAGEHAND_PLACEHOLDER/stagehand.js" type="text/javascript"></script>
-    <iframe style="width: 100%; height: 100%; border: 0; position: fixed; right: 0; left: 0; top: 0; bottom: 0;" src="https://STAGEHAND_PLACEHOLDER/index.html"></iframe>
+    <iframe style="width: 100%; height: 100%; border: 0; position: fixed; right: 0; left: 0; top: 0; bottom: 0; z-index: -1;" src="https://STAGEHAND_PLACEHOLDER/index.html"></iframe>
+
+  <!-- Handle Opening/Closing Dashboard -->
+  <script type="text/javascript">
+    const banner = document.getElementById('stagehand-banner');
+    const logo = document.getElementById('stagehand-logo');
+
+    const showBanner = (e) => {
+      logo.style.height = "36px";
+      logo.style.width = "36px";
+      logo.style.padding = "2px 2px 2px 12px";
+
+      banner.style.left = "-3px";
+      banner.style.background = "#F7A240";
+      banner.style.color = "#1A105E";
+    };
+
+    const hideBanner = (e) => {
+      banner.style.left = "-3000px";
+      banner.style.background = "none";
+      banner.style.color = "transparent";
+
+      logo.style.height = "40px";
+      logo.style.width = "40px";
+      logo.style.padding = "0 0 0 10px";
+    };
+
+    if (navigator.serviceWorker.controller) {
+      logo.addEventListener('mouseover', showBanner);
+      logo.addEventListener('mouseleave', hideBanner);
+
+      logo.addEventListener('click', (e) => {
+        showBanner();
+        setTimeout(hideBanner, 5000);
+      });
+    } else {
+      showBanner();
+      banner.textContent = "No Service Worker Installed, please refresh page for Stagehand to work";
+    }
+  </script>
   </body>
 </html>
