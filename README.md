@@ -1,4 +1,18 @@
-# stagehand
+<p align="center">
+  <img src="stagehand_logo-full.png" width="500" height="327" />
+</p>
+
+<h1 align="center">Stagehand: Automated review apps for modern frontend applications</h1>
+<h2 align="center">All you need is an AWS account and a GitHub repo to get started</h2>
+
+Stagehand is a drop-in solution that provides review apps for modern
+frontend applications. We are a framework that automatically manages
+review apps for your application’s GitHub repository on your own cloud
+infrastructure. We use AWS, GitHub Actions, and some Stagehand
+client-side code to set-up, deploy, manage, and teardown review apps
+for your frontend application.
+
+To learn more, please read our [case study](http://stagehand-framework.github.io) or feel free to drop us a line!
 
 # Prerequisites
 
@@ -12,25 +26,23 @@
 - NPM
 - Repository for static front-end application (ie Gatsby, Hugo, NextJS, React)
 
-
 # Installation
 
 - Run the install command: `npm i -g stagehand-framework`
-
 
 # Your First Stagehand Application
 
 - Navigate to the root of your local git repository, make sure that it is connected with a GitHub repository
 - Run `stagehand init`
 - Provide your GitHub Token (this token only needs to be provided the very first use)
-- A folder in your home directory `/  .stagehand` will be created to house your configuration and your application data for Stagehand
+- A folder in your home directory `/ .stagehand` will be created to house your configuration and your application data for Stagehand
 
 ### Setting Up your Github Actions
 
 - You will be prompted to provide:
   - The name you wish to use
   - The setup command your app uses (ie npm install, brew install hugo)
-  - The build command your app uses  (ie npm run-script build, hugo)
+  - The build command your app uses (ie npm run-script build, hugo)
   - The directory that your app builds to (ie public, out, build)
 - This will create a `.github/workflow` directory in your repo for GitHub Actions.
   - If you need to alter your GitHub build process look for `create_review_app.yml` and `remove_review_app.yml`
@@ -41,6 +53,7 @@
   - Settings => Secrets
 - Next you must access each of those secrets in your build file
 - If you navigate to `.github/workflows/create_review_app` you will come across this code on line 35
+
 ```
 ####### Uncomment below to add env variables to use during build process #######
 ####### Add \n to the end of each secret to start a new line #######
@@ -50,6 +63,7 @@
       #     SECRET1=${{ secrets.YOUR_SECRET1 }}\n
       #     SECRET2=${{ secrets.YOUR_SECRET2 }}" > .env
 ```
+
 - If you uncomment the last 4 lines you can add in your own secrets there to provide to a `.env` file at build time.
 
 ##### _Some Examples:_
@@ -94,12 +108,10 @@ An `API_KEY`, `DB_PASSWORD`, and `API_URL` secrets for a `.env.staging` file
   - We provide a banner at the top of your page containing some metadata (Creation Time, branch that the PR was opened on, and owner of the repository)
 - If you wish to add to this dashboard you can alter the html and javascript that we provide out of the box.
 
-
 ### Pushing Your `./github` folder to your GitHub Repostory
 
 - The last step is pushing your `./github` folder to your repository
 - You are now ready to start using Stagehand
-
 
 # Workflow
 
@@ -107,7 +119,6 @@ An `API_KEY`, `DB_PASSWORD`, and `API_URL` secrets for a `.env.staging` file
 - Stagehand will also build additional staging environments for every commit or change you make to the existing Pull Request
 - You can compare multiple versions of your application to each other
 - When the Pull request is closed or merged Stagehand will destroy all the staging environments that existed from that Pull Request
-
 
 # Stagehand Commands
 
